@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แคลคูลัส ติวเข้ม — อินทิเกรต + ดิฟประยุกต์</title>
+<style>
+:root{
+  --ground:#F5F7F8; --surf:#FFFFFF; --surf2:#ECF1F4; --line:#D3DEE5; --line-soft:#E4EBEF;
+  --text:#10202C; --muted:#5A7183; --faint:#8CA0AF;
+  --acc:#0F8C9B; --acc-soft:#DDF0F2; --acc-line:#7FC5CD;
+  --warn:#A56A12; --warn-soft:#FBF0DC; --warn-line:#E0BE7E;
+  --ok:#1B7D4E; --ok-soft:#DEF2E7; --bad:#B8413A; --bad-soft:#FBE4E2;
+  --sh:0 1px 2px rgba(16,32,44,.06),0 6px 18px -8px rgba(16,32,44,.14);
+  --thai:"Sarabun","Leelawadee UI","Noto Sans Thai","Thonburi","IBM Plex Sans Thai",system-ui,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Consolas","SFMono-Regular","Menlo",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0E1721; --surf:#16222F; --surf2:#1E2C3B; --line:#2A3B4D; --line-soft:#223040;
+  --text:#E6EDF3; --muted:#93A6B8; --faint:#6D8092;
+  --acc:#35C7D6; --acc-soft:#12313A; --acc-line:#2A6E78;
+  --warn:#E8A33D; --warn-soft:#33280F; --warn-line:#7A5D22;
+  --ok:#57C98A; --ok-soft:#12301F; --bad:#E8695F; --bad-soft:#361814;
+  --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -10px rgba(0,0,0,.6);
+}}
+:root[data-theme="dark"]{
+  --ground:#0E1721; --surf:#16222F; --surf2:#1E2C3B; --line:#2A3B4D; --line-soft:#223040;
+  --text:#E6EDF3; --muted:#93A6B8; --faint:#6D8092;
+  --acc:#35C7D6; --acc-soft:#12313A; --acc-line:#2A6E78;
+  --warn:#E8A33D; --warn-soft:#33280F; --warn-line:#7A5D22;
+  --ok:#57C98A; --ok-soft:#12301F; --bad:#E8695F; --bad-soft:#361814;
+  --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -10px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--thai);
+  font-size:17px;line-height:1.75;-webkit-text-size-adjust:100%}
+h1,h2,h3,h4{text-wrap:balance;line-height:1.3;margin:0}
+p{margin:0}
+button{font-family:inherit;font-size:inherit;color:inherit}
+code,.m{font-family:var(--mono);font-variant-numeric:tabular-nums}
+sub,sup{font-size:.7em;line-height:0}
+
+/* ---------- top bar ---------- */
+.bar{position:sticky;top:0;z-index:40;background:var(--ground);
+  background:color-mix(in srgb,var(--ground) 88%,transparent);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);}
+.bar-in{max-width:1180px;margin:0 auto;padding:.55rem 1.1rem;display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:-.01em;font-size:.98rem;margin-right:auto}
+.brand span{color:var(--muted);font-weight:400}
+.clock{font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums;
+  background:var(--surf2);border:1px solid var(--line);border-radius:999px;padding:.2rem .7rem;white-space:nowrap}
+.clock b{color:var(--acc);font-weight:600}
+.clock.over b{color:var(--bad)}
+.btn{background:var(--surf2);border:1px solid var(--line);border-radius:999px;
+  padding:.24rem .8rem;font-size:.86rem;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--acc-line)}
+.btn:focus-visible,.opt:focus-visible,.reveal:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.btn.on{background:var(--acc-soft);border-color:var(--acc-line);color:var(--acc)}
+.pbar{height:2px;background:var(--line-soft)}
+.pbar i{display:block;height:100%;width:100%;background:var(--acc);
+  transform:scaleX(0);transform-origin:left;transition:transform .3s}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 1.1rem;display:grid;
+  grid-template-columns:186px minmax(0,1fr);gap:2.6rem;align-items:start}
+.rail{position:sticky;top:64px;padding:1.6rem 0;display:block}
+.rail-t{font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:.7rem}
+.depth{position:relative;padding-left:1.4rem}
+.depth::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.depth i{position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--acc);
+  transform:scaleY(0);transform-origin:top;transition:transform .35s}
+.dl{display:block;position:relative;padding:.3rem 0;font-size:.83rem;color:var(--muted);
+  text-decoration:none;line-height:1.35}
+.dl::before{content:"";position:absolute;left:-1.4rem;top:.72rem;width:12px;height:2px;background:var(--line)}
+.dl::after{content:"";position:absolute;left:-1.24rem;top:.45rem;width:8px;height:8px;border-radius:50%;
+  background:var(--ground);border:2px solid var(--line);transition:border-color .2s,background .2s}
+.dl:hover{color:var(--text)}
+.dl.done::after,.dl.here::after{border-color:var(--acc)}
+.dl.done::after{background:var(--acc)}
+.dl.here{color:var(--text);font-weight:600}
+.dl u{display:block;font-family:var(--mono);font-size:.68rem;color:var(--faint);text-decoration:none}
+main{padding:1.6rem 0 5rem;min-width:0}
+
+/* ---------- sections ---------- */
+section{scroll-margin-top:70px;margin-bottom:3.4rem}
+.sh{border-top:2px solid var(--text);padding-top:.8rem;margin-bottom:1.5rem;
+  display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap}
+.sh .no{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--acc);text-transform:uppercase}
+.sh h2{font-size:1.7rem;letter-spacing:-.02em;flex:1 1 100%;margin-top:-.15rem}
+.sh .meta{font-family:var(--mono);font-size:.76rem;color:var(--muted);
+  border:1px solid var(--line);border-radius:4px;padding:.08rem .45rem}
+.lede{color:var(--muted);max-width:62ch;margin-bottom:1.5rem}
+.blk{max-width:68ch}
+.blk>*+*{margin-top:1rem}
+h3{font-size:1.12rem;letter-spacing:-.01em;margin-top:2rem;
+  display:flex;align-items:center;gap:.6rem}
+h3::before{content:"";width:14px;height:2px;background:var(--acc);flex:none}
+h4{font-size:.98rem}
+
+/* ---------- formula card ---------- */
+.fx{background:var(--surf2);border:1px solid var(--line);border-radius:8px;
+  padding:1.15rem 1.15rem .95rem;position:relative}
+.fx::before{content:"สูตร";position:absolute;top:-.62rem;left:1rem;background:var(--ground);
+  padding:0 .45rem;font-family:var(--mono);font-size:.63rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint)}
+.fx .eq{font-family:var(--mono);font-size:1.18rem;color:var(--text);letter-spacing:.01em;
+  display:block;margin-bottom:.55rem;overflow-x:auto}
+.fx .eq em{font-style:normal;color:var(--acc)}
+.fx dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.14rem .7rem;font-size:.9rem}
+.fx dt{font-family:var(--mono);color:var(--acc);white-space:nowrap}
+.fx dd{margin:0;color:var(--muted)}
+.eqline{font-family:var(--mono);background:var(--surf2);border-radius:5px;padding:.12rem .4rem;
+  font-size:.95em;white-space:nowrap}
+
+/* ---------- callouts ---------- */
+.trap,.note{border-radius:8px;padding:.85rem 1.05rem;font-size:.95rem}
+.trap{background:var(--warn-soft);border:1px solid var(--warn-line)}
+.trap b{color:var(--warn);display:block;font-size:.76rem;font-family:var(--mono);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.note{background:var(--acc-soft);border:1px solid var(--acc-line)}
+.note b{color:var(--acc);display:block;font-size:.76rem;font-family:var(--mono);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+
+/* ---------- examples ---------- */
+.ex{background:var(--surf);border:1px solid var(--line);border-radius:10px;
+  padding:1rem 1.15rem;box-shadow:var(--sh)}
+.ex+.ex{margin-top:.85rem}
+.exh{display:flex;align-items:center;gap:.55rem;margin-bottom:.55rem;flex-wrap:wrap}
+.qno{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--acc)}
+.chip{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:3px;padding:.1rem .4rem;border:1px solid}
+.c-core{color:var(--acc);border-color:var(--acc-line);background:var(--acc-soft)}
+.c-drill{color:var(--muted);border-color:var(--line);background:var(--surf2)}
+.c-skim{color:var(--faint);border-color:var(--line-soft)}
+.exq{font-size:.97rem}
+.steps{margin-top:.7rem;display:grid;gap:.55rem}
+.step{background:var(--surf2);border-radius:7px;padding:.55rem .8rem .6rem;font-size:.93rem;
+  animation:in .22s ease-out}
+.step[hidden]{display:none}
+.step u{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--faint);text-decoration:none;margin-bottom:.1rem}
+@keyframes in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.reveal{margin-top:.7rem;background:transparent;border:1px dashed var(--acc-line);color:var(--acc);
+  border-radius:6px;padding:.32rem .85rem;font-size:.85rem;cursor:pointer}
+.reveal:hover{background:var(--acc-soft)}
+.reveal[hidden]{display:none}
+.ans{margin-top:.7rem;font-family:var(--mono);font-size:.93rem;color:var(--ok);
+  background:var(--ok-soft);border-radius:6px;padding:.45rem .8rem;font-weight:600}
+.ans[hidden]{display:none}
+.short{margin-top:.5rem;font-size:.92rem;color:var(--muted);border-left:2px solid var(--line);padding-left:.75rem}
+.short .m{color:var(--text)}
+
+/* ---------- mcq + numeric ---------- */
+.opts{display:grid;gap:.35rem;margin-top:.6rem}
+@media(min-width:560px){.opts.g2{grid-template-columns:1fr 1fr}}
+.opt{text-align:left;background:var(--surf2);border:1px solid var(--line);border-radius:7px;
+  padding:.42rem .75rem;font-size:.92rem;cursor:pointer;font-family:var(--mono)}
+.opt:hover:not(:disabled){border-color:var(--acc-line)}
+.opt:disabled{cursor:default;opacity:.85}
+.opt.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);opacity:1}
+.opt.no{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);opacity:1}
+.fb{margin-top:.5rem;font-size:.9rem}
+.fb[hidden]{display:none}
+.numrow{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;margin-top:.5rem}
+input[type=text]{font-family:var(--mono);font-size:.95rem;width:9.5rem;padding:.34rem .6rem;
+  background:var(--surf2);border:1px solid var(--line);border-radius:6px;color:var(--text)}
+input.ok{border-color:var(--ok)} input.no{border-color:var(--bad)}
+.unit{font-family:var(--mono);font-size:.88rem;color:var(--muted)}
+.verdict{font-family:var(--mono);font-size:.85rem}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--bad)}
+
+/* ---------- misc ---------- */
+figure{margin:0;background:var(--surf);border:1px solid var(--line);border-radius:10px;
+  padding:.9rem;overflow-x:auto}
+figure svg{display:block;margin:0 auto;max-width:100%;height:auto}
+.s-wall{fill:none;stroke:var(--text);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.s-water{fill:var(--acc-soft);stroke:var(--acc-line);stroke-width:1.4}
+.s-water2{fill:var(--warn-soft);stroke:var(--warn-line);stroke-width:1.4}
+.s-solid{fill:var(--surf2);stroke:var(--text);stroke-width:2}
+.s-dash{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-dasharray:5 4}
+.s-dim{fill:none;stroke:var(--acc);stroke-width:1.3}
+.s-arr{fill:none;stroke:var(--acc);stroke-width:2;marker-end:url(#ah)}
+.s-arrW{fill:none;stroke:var(--warn);stroke-width:2;marker-end:url(#ahw)}
+.s-lbl{font-family:var(--mono);font-size:12px;fill:var(--text)}
+.s-lbl.mut{fill:var(--muted);font-size:11px}
+.s-lbl.acc{fill:var(--acc)}
+.s-lbl.wrn{fill:var(--warn)}
+figcaption{font-size:.82rem;color:var(--muted);text-align:center;margin-top:.5rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:.42rem .6rem;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.m{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+ul,ol{margin:0;padding-left:1.3rem}
+li+li{margin-top:.3rem}
+details{background:var(--surf2);border:1px solid var(--line);border-radius:8px;padding:.55rem .85rem}
+summary{cursor:pointer;font-size:.92rem;font-weight:600;color:var(--muted)}
+summary:hover{color:var(--text)}
+details[open] summary{margin-bottom:.5rem;color:var(--text)}
+.done-row{display:flex;align-items:center;gap:.6rem;margin-top:1.6rem;
+  border-top:1px dashed var(--line);padding-top:.9rem}
+.done-row label{font-size:.9rem;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.5rem}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--acc);cursor:pointer}
+.hero{padding:2.4rem 0 1.2rem}
+.hero h1{font-size:clamp(1.9rem,5.2vw,2.9rem);letter-spacing:-.035em}
+.hero .sub{color:var(--muted);margin-top:.6rem;max-width:56ch}
+.kpis{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));margin-top:1.4rem}
+.kpi{background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:.65rem .85rem}
+.kpi b{display:block;font-family:var(--mono);font-size:1.4rem;color:var(--acc);line-height:1.2}
+.kpi span{font-size:.78rem;color:var(--muted)}
+@media(max-width:860px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{display:none}
+  body{font-size:16px}
+}
+@media print{
+  .bar,.rail,.reveal,.no-print{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt}
+  .wrap{grid-template-columns:1fr;max-width:none}
+  .step[hidden],.ans[hidden]{display:block!important}
+  section{page-break-inside:avoid}
+}
+</style>
+<style>
+/* ---------- math helpers ---------- */
+.m,.eq,.opt,.ans{font-variant-numeric:tabular-nums}
+.ig{position:relative;display:inline-block;font-size:1.45em;line-height:1;
+  vertical-align:-.30em;margin:0 .95em 0 .1em;font-family:var(--mono)}
+.ig sup,.ig sub{position:absolute;left:.60em;font-size:.44em;line-height:1;color:var(--acc);font-weight:600}
+.ig sup{top:-.12em} .ig sub{bottom:-.06em}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;
+  margin:0 .3em;line-height:1.2;font-size:.95em}
+.fr>span:first-child{border-bottom:1.3px solid currentColor;padding:0 .4em .05em}
+.fr>span:last-child{padding:.05em .4em 0}
+.ev{display:inline-block;position:relative;padding-right:.85em}
+.ev sup,.ev sub{position:absolute;right:0;font-size:.62em;line-height:1;color:var(--acc)}
+.ev sup{top:-.15em} .ev sub{bottom:-.1em}
+.k{color:var(--acc);font-weight:600}
+.kb{color:var(--bad);font-weight:600}
+.kw{color:var(--warn);font-weight:600}
+.strike{text-decoration:line-through;text-decoration-color:var(--bad);
+  text-decoration-thickness:2px;opacity:.6}
+.wrongbox{background:var(--bad-soft);border:1px solid var(--bad);border-radius:8px;
+  padding:.7rem .95rem;font-size:.93rem}
+.wrongbox b{color:var(--bad);display:block;font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.okbox{background:var(--ok-soft);border:1px solid var(--ok);border-radius:8px;
+  padding:.7rem .95rem;font-size:.93rem}
+.okbox b{color:var(--ok);display:block;font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.two{display:grid;gap:.7rem}
+@media(min-width:640px){.two{grid-template-columns:1fr 1fr}}
+.flow{display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;
+  font-family:var(--mono);font-size:1rem;background:var(--surf2);border-radius:8px;padding:.9rem}
+.flow .node{background:var(--surf);border:1px solid var(--acc-line);border-radius:7px;
+  padding:.35rem .8rem;color:var(--acc);font-weight:600}
+.flow .ar{color:var(--muted);font-size:.8rem;text-align:center;line-height:1.25}
+.flow .ar u{display:block;text-decoration:none;font-size:1.3rem;color:var(--text)}
+.pill{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;
+  text-transform:uppercase;border:1px solid var(--acc-line);background:var(--acc-soft);
+  color:var(--acc);border-radius:999px;padding:.1rem .55rem}
+.hero .warn{margin-top:1.2rem;background:var(--warn-soft);border:1px solid var(--warn-line);
+  border-radius:9px;padding:.8rem 1rem;font-size:.94rem;max-width:60ch}
+.tbl-conv td.m{white-space:nowrap}
+.exq .ig{margin-right:1.1em}
+.grid3{display:grid;gap:.5rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  font-family:var(--mono);font-size:.92rem}
+.grid3 div{background:var(--surf2);border-radius:6px;padding:.35rem .6rem}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="brand">แคลคูลัส ติวเข้ม <span>· สอบ พุธ 26 ส.ค. 14:00</span></div>
+    <div class="clock" id="clock">อ่านมาแล้ว <b id="el">0:00</b></div>
+    <button class="btn" id="tbtn">เริ่มจับเวลา</button>
+    <button class="btn" id="theme">สลับธีม</button>
+  </div>
+  <div class="pbar"><i id="prog"></i></div>
+</div>
+
+<div class="wrap">
+<nav class="rail">
+  <div class="rail-t">เส้นทาง</div>
+  <div class="depth"><i id="depth"></i>
+    <a class="dl" href="#s0">ปรับพื้น: รูท &amp; เลขชี้กำลัง<u>15 นาที</u></a>
+    <a class="dl" href="#s1">ปฏิยานุพันธ์ + FTC<u>20 นาที</u></a>
+    <a class="dl" href="#s2">อินทิเกรตเศษส่วน<u>35 นาที · หัวใจ</u></a>
+    <a class="dl" href="#s3">a &rarr; v &rarr; s<u>25 นาที</u></a>
+    <a class="dl" href="#s4">สูงสุด / ต่ำสุด<u>20 นาที</u></a>
+    <a class="dl" href="#s5">พื้นที่ปิดล้อม<u>25 นาที</u></a>
+    <a class="dl" href="#s6">เทคนิคทำข้อสอบ<u>15 นาที</u></a>
+    <a class="dl" href="#s7">จุดพลาดประจำตัวเธอ<u>10 นาที</u></a>
+  </div>
+</nav>
+
+<main>
+
+<div class="hero">
+  <h1>อินทิเกรต กับ ดิฟประยุกต์ ใน 3 ชั่วโมง</h1>
+  <p class="sub">ครูอ่านกระดาษวินิจฉัยของเธอแล้ว ปัญหาไม่ใช่ "ไม่เก่ง" นะ — ในสมุดเธอทำโจทย์ยากกว่านี้ถูกหมด
+  ปัญหาคือ <b>4 ช่องว่าง</b> ที่บังเอิญเป็นหัวใจของข้อสอบพรุ่งนี้พอดี ชีทนี้เรียงตามลำดับที่ต้องปิด ห้ามข้าม §0 กับ §2 เด็ดขาด</p>
+  <div class="kpis">
+    <div class="kpi"><b>15</b><span>ข้อ</span></div>
+    <div class="kpi"><b>50</b><span>นาที</span></div>
+    <div class="kpi"><b>3:20</b><span>ต่อข้อ</span></div>
+    <div class="kpi"><b>0</b><span>เครื่องคิดเลข</span></div>
+  </div>
+  <div class="warn"><b>ข่าวกรองจากเพื่อน:</b> ด้านหน้าใช้ดิฟ (อัตราการเปลี่ยนแปลง v s a ประมาณ 3–4 ข้อ),
+  ด้านหลังใช้อินทิเกรต, <b>หลักๆคืออินทิเกรตเศษส่วน</b> (ครูชอบ รูท x และ ส่วนรูท x), พื้นที่ปิดล้อม
+  รวมถึงแบบ <b>2 ก้อน</b>, และคำถามพิสูจน์จุดสูงสุด/ต่ำสุดสัมพัทธ์ — ชีทนี้ครอบทุกอันแล้ว</div>
+</div>
+
+<!-- ============ S0 ============ -->
+<section id="s0">
+  <div class="sh"><span class="no">§ 0</span><h2>ปรับพื้น — รูท กับ เลขชี้กำลัง</h2><span class="meta">15 นาที</span></div>
+  <p class="lede">ในกระดาษวินิจฉัย เธอเขียน "I don't know what this will convert to" ตรงที่ 4<sup>3/2</sup>
+  และเดาว่าเป็นรากที่สาม — ไม่ใช่ค่ะ ทั้งบทอินทิเกรตพังตรงนี้ที่เดียว ปิดให้จบก่อน 15 นาที</p>
+
+  <div class="blk">
+
+  <h3>กติกาเดียวที่ต้องจำ</h3>
+  <div class="fx">
+    <span class="eq">รูท คือ <em>เลขชี้กำลังเศษส่วน</em> — ตัวส่วนของเลขชี้กำลัง = อันดับของรูท</span>
+    <dl>
+      <dt>x<sup>m/n</sup></dt><dd>= รากที่ n ของ x<sup>m</sup> = (รากที่ n ของ x)<sup>m</sup></dd>
+      <dt>x<sup>-n</sup></dt><dd>= 1 / x<sup>n</sup> &nbsp;(เครื่องหมายลบ = ย้ายลงล่าง ไม่ใช่ทำให้ติดลบ)</dd>
+    </dl>
+  </div>
+
+  <p><b>ตารางแปลง — ท่องให้ได้ อ่านซ้าย-ขวาสลับกันได้ทันที</b></p>
+  <div class="tw"><table class="tbl-conv">
+    <tr><th>เขียนแบบรูท/เศษส่วน</th><th>เขียนแบบเลขชี้กำลัง</th><th>อินทิเกรตแล้วได้</th></tr>
+    <tr><td class="m">รูท x</td><td class="m">x<sup>1/2</sup></td><td class="m">(2/3) x<sup>3/2</sup></td></tr>
+    <tr><td class="m">1 / รูท x</td><td class="m">x<sup>-1/2</sup></td><td class="m">2 x<sup>1/2</sup> = 2 รูท x</td></tr>
+    <tr><td class="m">x รูท x</td><td class="m">x<sup>3/2</sup></td><td class="m">(2/5) x<sup>5/2</sup></td></tr>
+    <tr><td class="m">รูท x / x</td><td class="m">x<sup>-1/2</sup></td><td class="m">2 รูท x</td></tr>
+    <tr><td class="m">รูท x / x<sup>2</sup></td><td class="m">x<sup>-3/2</sup></td><td class="m">-2 x<sup>-1/2</sup></td></tr>
+    <tr><td class="m">1 / x<sup>2</sup></td><td class="m">x<sup>-2</sup></td><td class="m">-1/x</td></tr>
+    <tr><td class="m">1 / x<sup>3</sup></td><td class="m">x<sup>-3</sup></td><td class="m">-1/(2x<sup>2</sup>)</td></tr>
+  </table></div>
+
+  <h3>ค่ายกกำลังเศษส่วนที่ต้องคิดในหัว (ไม่มีเครื่องคิดเลข)</h3>
+  <p>วิธีคิด: <span class="k">ถอดรูทก่อน แล้วค่อยยกกำลัง</span> — ตัวเลขจะเล็กและคิดในหัวได้เสมอ</p>
+  <div class="grid3">
+    <div>4<sup>1/2</sup> = 2</div>
+    <div>4<sup>3/2</sup> = 2<sup>3</sup> = <span class="k">8</span></div>
+    <div>4<sup>-1/2</sup> = 1/2</div>
+    <div>9<sup>1/2</sup> = 3</div>
+    <div>9<sup>3/2</sup> = 3<sup>3</sup> = <span class="k">27</span></div>
+    <div>9<sup>-1/2</sup> = 1/3</div>
+    <div>16<sup>1/2</sup> = 4</div>
+    <div>16<sup>3/2</sup> = 4<sup>3</sup> = <span class="k">64</span></div>
+    <div>8<sup>2/3</sup> = 2<sup>2</sup> = 4</div>
+    <div>1<sup>อะไรก็ตาม</sup> = 1</div>
+    <div>25<sup>3/2</sup> = 5<sup>3</sup> = 125</div>
+    <div>0<sup>บวก</sup> = 0</div>
+  </div>
+
+  <div class="trap"><b>กับดักที่เธอติดจริง</b>
+  4<sup>3/2</sup> <span class="kb">ไม่ใช่</span> รากที่สามของ 4<sup>2</sup> — ตัวส่วนของ 3/2 คือ <b>2</b> จึงเป็นรากที่ <b>สอง</b>
+  ตัวเศษ 3 คือกำลัง แปลว่า (รูท 4)<sup>3</sup> = 2<sup>3</sup> = 8 ค่ะ
+  ท่องสั้น ๆ: <span class="k">ล่างคืออันดับรูท บนคือกำลัง</span></div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 0.1</span><span class="chip c-core">ต้องได้</span></div>
+    <div class="exq">เขียน <span class="m">(x<sup>2</sup> + รูท x) / x<sup>2</sup></span> ให้อยู่ในรูปเลขชี้กำลังล้วน</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1</u> แยกเศษออกเป็นสองก้อนก่อน: x<sup>2</sup>/x<sup>2</sup> + รูท x / x<sup>2</sup></div>
+      <div class="step" hidden><u>ขั้น 2</u> ก้อนแรก = 1 · ก้อนสอง = x<sup>1/2</sup> / x<sup>2</sup> = x<sup>1/2 - 2</sup> = x<sup>-3/2</sup></div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>= 1 + x<sup>-3/2</sup></div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 0.2</span><span class="chip c-drill">เร็ว</span></div>
+    <div class="exq">หาค่า: (ก) 4<sup>5/2</sup> &nbsp; (ข) 9<sup>-1/2</sup> &nbsp; (ค) 16<sup>3/4</sup> &nbsp; (ง) 27<sup>2/3</sup></div>
+    <button class="reveal">ดูเฉลย</button>
+    <div class="ans" hidden>(ก) 2<sup>5</sup> = 32 &nbsp; (ข) 1/3 &nbsp; (ค) 2<sup>3</sup> = 8 &nbsp; (ง) 3<sup>2</sup> = 9</div>
+  </div>
+
+  <div class="done-row"><label><input type="checkbox" data-k="s0"> §0 ปิดแล้ว — แปลงรูทเป็นเลขชี้กำลังได้ทันทีโดยไม่ต้องคิด</label></div>
+  </div>
+</section>
+
+<!-- ============ S1 ============ -->
+<section id="s1">
+  <div class="sh"><span class="no">§ 1</span><h2>ปฏิยานุพันธ์ และ ทฤษฎีบทหลักมูล</h2><span class="meta">20 นาที</span></div>
+  <p class="lede">คำว่า <b>ปฏิยานุพันธ์</b> ที่เพื่อนเธอพูดถึง แปลตรงตัวว่า "อนุพันธ์ย้อนกลับ" —
+  ถ้า F'(x) = f(x) เราเรียก F ว่าปฏิยานุพันธ์ของ f มันคือคำเดียวกับ "อินทิเกรต" นั่นแหละ ไม่ต้องกลัวคำ</p>
+
+  <div class="blk">
+  <h3>กฎเดียวที่ใช้ทั้งข้อสอบ</h3>
+  <div class="fx">
+    <span class="eq"><span class="ig">&#8747;</span>x<sup>n</sup> dx = <span class="fr"><span>x<sup>n+1</sup></span><span>n + 1</span></span> + <em>C</em> &nbsp;&nbsp; (n &ne; -1)</span>
+    <dl>
+      <dt>ท่อง</dt><dd>บวกหนึ่งข้างบน แล้วหารด้วยตัวใหม่</dd>
+      <dt>+ C</dt><dd>ใส่ทุกครั้งที่เป็นปริพันธ์ <b>ไม่จำกัดเขต</b> (ไม่มีตัวเลขบน-ล่าง)</dd>
+    </dl>
+  </div>
+
+  <div class="trap"><b>เธอลืมตรงนี้ในข้อ 4</b>
+  เธอเขียน <span class="m">&#8747;(6 - 2t)dt = 6t - t<sup>2</sup></span> ซึ่งถูก แต่ <span class="kb">ไม่มี + C</span>
+  ในโจทย์ v(0)=5 นั้น <b>C คือคำตอบ</b> ถ้าไม่เขียน C ไว้ก็ไม่มีที่ให้ 5 ลง จำไว้ว่า
+  <span class="k">โจทย์ที่ให้จุดหรือค่าเริ่มต้นมา = โจทย์ที่บังคับให้มี C</span></div>
+
+  <h3>ปริพันธ์จำกัดเขต — วิธีเขียนที่กันพลาด</h3>
+  <div class="fx">
+    <span class="eq"><span class="ig">&#8747;<sub>a</sub><sup>b</sup></span>f(x) dx = <span class="ev">[ F(x) ]<sub>a</sub><sup>b</sup></span> = F(b) <em>-</em> F(a)</span>
+    <dl><dt>ห้ามลืม</dt><dd>บนลบล่างเสมอ · <b>วงเล็บครอบ F(a) ทุกครั้ง</b></dd></dl>
+  </div>
+
+  <div class="two">
+  <div class="wrongbox"><b>เขียนแบบเสี่ยง</b>
+  F(b) - F(a) แล้วกระจายในหัว<br>
+  <span class="m">= 27 - 12 - 2 - 8 - 8 - 3</span><br>
+  เครื่องหมายหายเมื่อไหร่ก็ไม่รู้</div>
+  <div class="okbox"><b>เขียนแบบปลอดภัย</b>
+  <span class="m">= (27 - 12 - 2) - (8 - 8 - 3)</span><br>
+  <span class="m">= (13) - (-3) = 16</span><br>
+  วงเล็บก่อน แล้วค่อยลบ</div>
+  </div>
+
+  <div class="note"><b>ทำไมเรื่องนี้สำคัญกับเธอเป็นพิเศษ</b>
+  ครูไล่โจทย์ในสมุดเธอใหม่ทุกข้อ เจอว่าเธอทำ <span class="m">&#8747;<sub>3</sub><sup>4</sup>(x<sup>3</sup>+3)dx</span>
+  ได้ 259/4 ทั้งที่คำตอบคือ 187/4 — เพราะตอนรวมเขียน <span class="m">81/4 <span class="kb">-</span> 36/4</span> แทนที่จะเป็นบวก
+  และ <span class="m">&#8747;<sub>1</sub><sup>4</sup>(2x - x<sup>3</sup>/3)dx</span> ได้ 75/12 ทั้งที่คำตอบติดลบ
+  <b>สองข้อนี้ไม่ได้ผิดเพราะไม่เข้าใจ — ผิดเพราะไม่ได้ใส่วงเล็บ</b></div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 1.1</span><span class="chip c-core">ข้อที่เธอทำค้างไว้</span></div>
+    <div class="exq"><span class="ig">&#8747;<sub>1</sub><sup>9</sup></span><span class="fr"><span>1</span><span>รูท x</span></span> dx</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · แปลง</u> 1/รูท x = x<sup>-1/2</sup> &nbsp;<b>(ตรงนี้เธอทำถูกแล้ว)</b></div>
+      <div class="step" hidden><u>ขั้น 2 · บวกหนึ่ง หารตัวใหม่</u> x<sup>-1/2+1</sup> / (1/2) = x<sup>1/2</sup> / (1/2) = 2x<sup>1/2</sup> = 2 รูท x</div>
+      <div class="step" hidden><u>ขั้น 3 · แทนค่า</u> [2 รูท x]<sub>1</sub><sup>9</sup> = (2 รูท 9) - (2 รูท 1) = 6 - 2</div>
+      <div class="step" hidden><u>ขั้น 4 · จุดที่เธอหยุด</u> เธอหา 6 กับ 2 ได้ครบแล้ว เหลือแค่ <b>ลบ</b> — อย่าลืมขั้นสุดท้ายนะคะ</div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>= 4</div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 1.2</span><span class="chip c-drill">3 ข้อรวด</span></div>
+    <div class="exq">(ก) <span class="ig">&#8747;<sub>0</sub><sup>4</sup></span>รูท x dx &nbsp;&nbsp;
+    (ข) <span class="ig">&#8747;<sub>1</sub><sup>2</sup></span>x<sup>-2</sup> dx &nbsp;&nbsp;
+    (ค) <span class="ig">&#8747;<sub>-1</sub><sup>2</sup></span>(3x<sup>2</sup> - 2x) dx</div>
+    <div class="steps">
+      <div class="step" hidden><u>ก</u> [(2/3)x<sup>3/2</sup>]<sub>0</sub><sup>4</sup> = (2/3)(4<sup>3/2</sup>) - 0 = (2/3)(8) = 16/3</div>
+      <div class="step" hidden><u>ข</u> [-1/x]<sub>1</sub><sup>2</sup> = (-1/2) - (-1) = 1/2</div>
+      <div class="step" hidden><u>ค</u> [x<sup>3</sup> - x<sup>2</sup>]<sub>-1</sub><sup>2</sup> = (8 - 4) - (-1 - 1) = 4 - (-2) = 6</div>
+    </div>
+    <button class="reveal">ดูเฉลยทีละข้อ</button>
+    <div class="ans" hidden>16/3 · 1/2 · 6</div>
+  </div>
+
+  <div class="done-row"><label><input type="checkbox" data-k="s1"> §1 ปิดแล้ว — ใส่วงเล็บ F(a) ทุกครั้ง และไม่ลืม + C</label></div>
+  </div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section id="s2">
+  <div class="sh"><span class="no">§ 2</span><h2>อินทิเกรตเศษส่วน <span class="pill">หัวใจของข้อสอบ</span></h2><span class="meta">35 นาที · ห้ามข้าม</span></div>
+  <p class="lede">เพื่อนเธอบอกว่า "หลักๆคืออินทิเกรตเศษส่วน" และในกระดาษวินิจฉัยเธอเขียนว่า
+  "I do not know what to do with Division" — ข่าวดีคือมันมีท่าเดียว และท่านั้นง่ายมาก
+  อ่านหัวข้อนี้จบเธอจะทำได้ทุกข้อในกลุ่มนี้</p>
+
+  <div class="blk">
+
+  <h3>กฎเหล็ก: ตัดได้เฉพาะเมื่อข้างบนเป็นการ "คูณ" เท่านั้น</h3>
+  <div class="two">
+    <div class="okbox"><b>ตัดได้</b>
+    <span class="m">(x<sup>2</sup> &middot; รูท x) / x<sup>2</sup> = รูท x</span><br>
+    เพราะข้างบนเป็น <b>ผลคูณ</b> — x<sup>2</sup> เป็นตัวประกอบของทั้งก้อน</div>
+    <div class="wrongbox"><b>ตัดไม่ได้เด็ดขาด</b>
+    <span class="m">(x<sup>2</sup> <span class="kb">+</span> รูท x) / x<sup>2</sup> <span class="kb">&ne;</span> รูท x</span><br>
+    เพราะข้างบนเป็น <b>ผลบวก</b> — x<sup>2</sup> เป็นของพจน์แรกพจน์เดียว</div>
+  </div>
+
+  <div class="trap"><b>นี่คือสิ่งที่เกิดขึ้นในข้อ 3 ของเธอ</b>
+  เธอขีดฆ่า x<sup>2</sup> ข้างบนกับ x<sup>2</sup> ข้างล่างทิ้ง แล้วเหลือ
+  <span class="m">&#8747;<sub>1</sub><sup>4</sup> รูท x dx</span> — จากตรงนั้นทุกอย่างที่เธอทำต่อถูกหมดเลยนะคะ
+  <b>แต่โจทย์ไม่ใช่ข้อนั้นแล้ว</b> ลองแทน x = 4 ดูก็รู้: ของจริง (16+2)/16 = 1.125 แต่ที่เธอตัดเหลือ รูท 4 = 2
+  ไม่เท่ากัน <span class="k">อยากเช็คว่าตัดได้ไหม ให้แทนเลขง่าย ๆ ลงไปสองฝั่ง</span></div>
+
+  <h3>ท่ามาตรฐาน 3 ขั้น</h3>
+  <div class="fx">
+    <span class="eq"><em>1)</em> แยกเศษทีละพจน์ &nbsp; <em>2)</em> แปลงเป็นเลขชี้กำลัง &nbsp; <em>3)</em> บวกหนึ่ง หารตัวใหม่</span>
+    <dl><dt>ขั้น 1</dt><dd>(A + B + C) / D = A/D + B/D + C/D &nbsp; — เอาตัวส่วนไปหาร <b>ทุกพจน์</b></dd>
+    <dt>ขั้น 2</dt><dd>ใช้ตารางใน §0 · ตัวส่วนหายหมด เหลือ x ยกกำลังล้วน</dd>
+    <dt>ขั้น 3</dt><dd>กฎยกกำลังธรรมดา ไม่มีอะไรใหม่</dd></dl>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 2.1</span><span class="chip c-core">ข้อที่เธอตัน · หน้า 72 ข้อ 1.9</span></div>
+    <div class="exq"><span class="ig">&#8747;<sub>2</sub><sup>3</sup></span><span class="fr"><span>3x<sup>4</sup> - 4x<sup>2</sup> + 6</span><span>x<sup>2</sup></span></span> dx</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · แยกเศษ</u> = <span class="m">3x<sup>4</sup>/x<sup>2</sup> - 4x<sup>2</sup>/x<sup>2</sup> + 6/x<sup>2</sup></span> &nbsp;— หารทีละพจน์ ไม่ต้องคิดมาก</div>
+      <div class="step" hidden><u>ขั้น 2 · ลบเลขชี้กำลัง</u> = <span class="m">3x<sup>2</sup> - 4 + 6x<sup>-2</sup></span> &nbsp; (พจน์กลางได้ 4x<sup>0</sup> = 4 · ตัว x หายหมด)</div>
+      <div class="step" hidden><u>ขั้น 3 · อินทิเกรตทีละพจน์</u> = <span class="ev">[ x<sup>3</sup> - 4x - 6/x ]<sub>2</sub><sup>3</sup></span>
+      <br><span class="kw">ระวัง:</span> 6x<sup>-2</sup> อินทิเกรตได้ 6x<sup>-1</sup>/(-1) = <b>-6/x</b> เครื่องหมายกลับ</div>
+      <div class="step" hidden><u>ขั้น 4 · แทนค่า วงเล็บครอบ</u> = (27 - 12 - 2) - (8 - 8 - 3) = (13) - (-3)</div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>= 16</div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 2.2</span><span class="chip c-core">ข้อ 3 ของเธอ · หน้า 72 ข้อ 1.10</span></div>
+    <div class="exq"><span class="ig">&#8747;<sub>1</sub><sup>4</sup></span><span class="fr"><span>x<sup>2</sup> + รูท x</span><span>x<sup>2</sup></span></span> dx</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · แยกเศษ</u> = <span class="m">x<sup>2</sup>/x<sup>2</sup> + รูท x / x<sup>2</sup></span> = <span class="m">1 + x<sup>1/2</sup>/x<sup>2</sup></span></div>
+      <div class="step" hidden><u>ขั้น 2 · ลบเลขชี้กำลัง</u> 1/2 - 2 = 1/2 - 4/2 = -3/2 &nbsp; ดังนั้น = <span class="m">1 + x<sup>-3/2</sup></span></div>
+      <div class="step" hidden><u>ขั้น 3 · อินทิเกรต</u> 1 ได้ x &middot; x<sup>-3/2</sup> ได้ x<sup>-1/2</sup>/(-1/2) = -2x<sup>-1/2</sup>
+      <br>= <span class="ev">[ x - 2/รูท x ]<sub>1</sub><sup>4</sup></span></div>
+      <div class="step" hidden><u>ขั้น 4 · แทนค่า</u> ที่ 4: 4 - 2/2 = 3 · ที่ 1: 1 - 2/1 = -1 &nbsp; แล้ว (3) - (-1)</div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>= 4</div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 2.3</span><span class="chip c-core">แบบ "ส่วนรูท x" ที่ครูชอบออก</span></div>
+    <div class="exq"><span class="ig">&#8747;<sub>1</sub><sup>4</sup></span><span class="fr"><span>x + 1</span><span>รูท x</span></span> dx</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · แยกเศษ</u> = <span class="m">x/รูท x + 1/รูท x</span></div>
+      <div class="step" hidden><u>ขั้น 2 · แปลง</u> x/x<sup>1/2</sup> = x<sup>1-1/2</sup> = x<sup>1/2</sup> &nbsp;&middot;&nbsp; 1/รูท x = x<sup>-1/2</sup>
+      <br>= <span class="m">x<sup>1/2</sup> + x<sup>-1/2</sup></span></div>
+      <div class="step" hidden><u>ขั้น 3 · อินทิเกรต</u> = <span class="ev">[ (2/3)x<sup>3/2</sup> + 2x<sup>1/2</sup> ]<sub>1</sub><sup>4</sup></span></div>
+      <div class="step" hidden><u>ขั้น 4 · แทนค่า</u> ที่ 4: (2/3)(8) + 2(2) = 16/3 + 4 = 28/3
+      <br>ที่ 1: (2/3)(1) + 2(1) = 2/3 + 2 = 8/3 &nbsp; แล้ว 28/3 - 8/3</div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>= 20/3</div>
+  </div>
+
+  <h3>ฝึกเอง — 5 ข้อ ทำในกระดาษก่อนกดดู</h3>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 2.4</span></div>
+    <div class="exq"><span class="ig">&#8747;</span><span class="fr"><span>x<sup>3</sup> - 2x</span><span>x</span></span> dx</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>= &#8747;(x<sup>2</sup> - 2)dx = x<sup>3</sup>/3 - 2x + C</div>
+  </div>
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 2.5</span></div>
+    <div class="exq"><span class="ig">&#8747;</span><span class="fr"><span>x<sup>2</sup> - 1</span><span>รูท x</span></span> dx</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>= &#8747;(x<sup>3/2</sup> - x<sup>-1/2</sup>)dx = (2/5)x<sup>5/2</sup> - 2x<sup>1/2</sup> + C</div>
+  </div>
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 2.6</span><span class="chip c-drill">ข้อกับดัก</span></div>
+    <div class="exq"><span class="ig">&#8747;<sub>1</sub><sup>9</sup></span><span class="fr"><span>รูท x + 1</span><span>x</span></span> dx</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>แยกได้ x<sup>-1/2</sup> + x<sup>-1</sup> &mdash; พจน์ x<sup>-1</sup> ใช้กฎยกกำลังไม่ได้ (n = -1 จะกลายเป็นหารด้วยศูนย์) ม.6 ยังไม่เรียน ln ข้อสอบจะไม่ออกแบบนี้ <b>บทเรียน: เห็น 1/x โดด ๆ = ตรวจโจทย์ใหม่</b></div>
+  </div>
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 2.7</span></div>
+    <div class="exq"><span class="ig">&#8747;<sub>1</sub><sup>4</sup></span><span class="fr"><span>2x<sup>3</sup> + รูท x</span><span>x<sup>2</sup></span></span> dx</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>= &#8747;<sub>1</sub><sup>4</sup>(2x + x<sup>-3/2</sup>)dx = [x<sup>2</sup> - 2x<sup>-1/2</sup>]<sub>1</sub><sup>4</sup> = (16 - 1) - (1 - 2) = 15 - (-1) = 16</div>
+  </div>
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 2.8</span><span class="chip c-core">เช็คกับดัก</span></div>
+    <div class="exq"><span class="ig">&#8747;<sub>0</sub><sup>1</sup></span><span class="fr"><span>x<sup>2</sup>(x + 1)</span><span>x</span></span> dx &nbsp;— ข้อนี้ตัดได้หรือไม่?</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>ตัดได้ค่ะ เพราะข้างบนเป็นผลคูณ x<sup>2</sup>(x+1) &rarr; เหลือ x(x+1) = x<sup>2</sup>+x<br>= [x<sup>3</sup>/3 + x<sup>2</sup>/2]<sub>0</sub><sup>1</sup> = 1/3 + 1/2 = 5/6</div>
+  </div>
+
+  <div class="done-row"><label><input type="checkbox" data-k="s2"> §2 ปิดแล้ว — เห็นเศษส่วนแล้วมือแยกพจน์อัตโนมัติ ไม่ตัดมั่ว</label></div>
+  </div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section id="s3">
+  <div class="sh"><span class="no">§ 3</span><h2>ระยะทาง &rarr; ความเร็ว &rarr; ความเร่ง</h2><span class="meta">25 นาที · ประมาณ 3-4 ข้อ</span></div>
+  <p class="lede">เพื่อนบอกว่าหน้าแรกของข้อสอบมี 3-4 ข้อเรื่องอัตราการเปลี่ยนแปลงของ s v a
+  ในกระดาษเธอเขียนว่า "I forgot if it is v or s" — จำแค่ภาพเดียวข้างล่างนี้ก็พอค่ะ ไม่ต้องท่องอะไรเลย</p>
+
+  <div class="blk">
+
+  <div class="flow">
+    <span class="node">s(t)<br><small>ระยะทาง</small></span>
+    <span class="ar"><u>&rarr;</u>ดิฟ</span>
+    <span class="node">v(t)<br><small>ความเร็ว</small></span>
+    <span class="ar"><u>&rarr;</u>ดิฟ</span>
+    <span class="node">a(t)<br><small>ความเร่ง</small></span>
+  </div>
+  <p style="text-align:center;color:var(--muted);font-size:.92rem">
+  <b>ดิฟ = เดินไปทางขวา</b> &nbsp;&middot;&nbsp; <b>อินทิเกรต = เดินย้อนกลับมาทางซ้าย</b></p>
+
+  <div class="fx">
+    <span class="eq">v = <em>ds/dt</em> = s&prime;(t) &nbsp;&nbsp;|&nbsp;&nbsp; a = <em>dv/dt</em> = v&prime;(t) = s&Prime;(t)</span>
+    <span class="eq">s = <span class="ig">&#8747;</span>v dt &nbsp;&nbsp;|&nbsp;&nbsp; v = <span class="ig">&#8747;</span>a dt</span>
+    <dl><dt>โจทย์ให้ a</dt><dd>อินทิเกรต 1 ครั้งได้ v · อินทิเกรต 2 ครั้งได้ s</dd>
+    <dt>โจทย์ให้ s</dt><dd>ดิฟ 1 ครั้งได้ v · ดิฟ 2 ครั้งได้ a</dd></dl>
+  </div>
+
+  <div class="note"><b>กฎทองของขาอินทิเกรต</b>
+  ทุกครั้งที่อินทิเกรตขึ้นหนึ่งชั้น จะเกิด C ใหม่หนึ่งตัว —
+  <span class="k">ต้องหาค่า C ให้จบก่อนอินทิเกรตชั้นถัดไป</span> ห้ามลากทั้งสองชั้นแล้วค่อยหา
+  เงื่อนไขที่โจทย์ให้มา (เช่น v(0)=5, s(0)=0) มีไว้ใช้ทีละชั้นพอดี</div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 3.1</span><span class="chip c-core">ข้อ 4 ของเธอ · หน้า 69 ข้อ 6</span></div>
+    <div class="exq">กำหนด a(t) = 6 - 2t, 0 &le; t &le; 3, โดย v(0) = 5 และ s(0) = 0 &nbsp; จงหา v(t) และ s(t)</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · a ขึ้นไป v</u> v(t) = &#8747;(6 - 2t)dt = 6t - t<sup>2</sup> <span class="k">+ C</span>
+      <br>ส่วน 6t - t<sup>2</sup> เธอทำถูกแล้วนะคะ ขาดแค่ C</div>
+      <div class="step" hidden><u>ขั้น 2 · ใช้ v(0) = 5 หา C ทันที</u> แทน t = 0: 6(0) - 0<sup>2</sup> + C = 5 &rarr; <b>C = 5</b>
+      <br>ดังนั้น <b>v(t) = 6t - t<sup>2</sup> + 5</b></div>
+      <div class="step" hidden><u>ขั้น 3 · v ขึ้นไป s</u> s(t) = &#8747;(6t - t<sup>2</sup> + 5)dt = 3t<sup>2</sup> - t<sup>3</sup>/3 + 5t <span class="k">+ C</span></div>
+      <div class="step" hidden><u>ขั้น 4 · ใช้ s(0) = 0</u> แทน t = 0 ได้ทุกพจน์เป็นศูนย์ &rarr; <b>C = 0</b></div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>v(t) = 6t - t<sup>2</sup> + 5 &nbsp;&nbsp; s(t) = 3t<sup>2</sup> - t<sup>3</sup>/3 + 5t</div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 3.2</span><span class="chip c-core">ข้อ 5 ของเธอ · หน้า 68 ข้อ 5 · โจทย์ "ปฏิยานุพันธ์"</span></div>
+    <div class="exq">จงหาสมการเส้นโค้ง y = f(x) เมื่อ dy/dx = x<sup>2</sup> - 3x + 2 และเส้นโค้งผ่านจุด (2, 1)</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · แปลภาษาโจทย์</u> "ให้ dy/dx มา หาเส้นโค้ง" = <b>อินทิเกรตหนึ่งครั้ง</b> เหมือน a ขึ้นไป v เป๊ะ ๆ
+      <br>"ผ่านจุด (2,1)" = <b>เงื่อนไขสำหรับหา C</b></div>
+      <div class="step" hidden><u>ขั้น 2 · อินทิเกรต</u> y = x<sup>3</sup>/3 - 3x<sup>2</sup>/2 + 2x <span class="k">+ C</span></div>
+      <div class="step" hidden><u>ขั้น 3 · แทนจุด x=2, y=1</u> 8/3 - 3(4)/2 + 4 + C = 1
+      <br>8/3 - 6 + 4 + C = 1 &rarr; 8/3 - 2 + C = 1</div>
+      <div class="step" hidden><u>ขั้น 4 · แก้หา C</u> C = 3 - 8/3 = 9/3 - 8/3 = <b>1/3</b></div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>y = x<sup>3</sup>/3 - 3x<sup>2</sup>/2 + 2x + 1/3</div>
+  </div>
+
+  <h3>ขาดิฟ — ด้านหน้าของข้อสอบ</h3>
+  <p>ให้ s(t) มา แล้วถามค่าที่เวลาหนึ่ง หรือถามว่า "เมื่อไหร่วัตถุหยุดนิ่ง" ท่องคำแปลสามอันนี้:</p>
+  <div class="tw"><table>
+    <tr><th>โจทย์ถามว่า</th><th>แปลว่า</th></tr>
+    <tr><td>วัตถุหยุดนิ่ง / เปลี่ยนทิศทาง</td><td class="m">v(t) = 0</td></tr>
+    <tr><td>ความเร็วมากที่สุด / น้อยที่สุด</td><td class="m">a(t) = 0</td></tr>
+    <tr><td>เคลื่อนที่ไปข้างหน้า / ถอยหลัง</td><td class="m">v(t) &gt; 0 / v(t) &lt; 0</td></tr>
+    <tr><td>การกระจัดจาก t=a ถึง t=b</td><td class="m">s(b) - s(a) = &#8747;<sub>a</sub><sup>b</sup> v dt</td></tr>
+  </table></div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 3.3</span><span class="chip c-core">แบบมาตรฐาน</span></div>
+    <div class="exq">s(t) = t<sup>3</sup> - 6t<sup>2</sup> + 9t &nbsp; จงหา (ก) วัตถุหยุดนิ่งเมื่อใด (ข) ความเร่งที่ t = 4</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · ดิฟหา v</u> v(t) = 3t<sup>2</sup> - 12t + 9</div>
+      <div class="step" hidden><u>ขั้น 2 · หยุดนิ่งคือ v = 0</u> 3(t<sup>2</sup> - 4t + 3) = 0 &rarr; 3(t - 1)(t - 3) = 0 &rarr; <b>t = 1 และ t = 3</b></div>
+      <div class="step" hidden><u>ขั้น 3 · ดิฟอีกครั้งหา a</u> a(t) = 6t - 12 &rarr; a(4) = 24 - 12 = <b>12</b></div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>(ก) t = 1, 3 &nbsp;&nbsp; (ข) a(4) = 12</div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 3.4</span></div>
+    <div class="exq">s(t) = 2t<sup>3</sup> - 3t<sup>2</sup> + 4 &nbsp; จงหา v(2) และ a(2)</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>v = 6t<sup>2</sup> - 6t &rarr; v(2) = 24 - 12 = 12 &nbsp;&middot;&nbsp; a = 12t - 6 &rarr; a(2) = 18</div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 3.5</span></div>
+    <div class="exq">a(t) = 12t - 4 โดย v(0) = 3 และ s(0) = 2 &nbsp; จงหา s(t)</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>v = 6t<sup>2</sup> - 4t + C, v(0)=3 &rarr; C=3 &rarr; v = 6t<sup>2</sup> - 4t + 3<br>
+    s = 2t<sup>3</sup> - 2t<sup>2</sup> + 3t + C, s(0)=2 &rarr; C=2 &rarr; <b>s(t) = 2t<sup>3</sup> - 2t<sup>2</sup> + 3t + 2</b></div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 3.6</span><span class="chip c-drill">ระวังเครื่องหมาย</span></div>
+    <div class="exq">v(t) = 3t<sup>2</sup> - 6t &nbsp; จงหาการกระจัดในช่วง t = 1 ถึง t = 3</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>&#8747;<sub>1</sub><sup>3</sup>(3t<sup>2</sup> - 6t)dt = [t<sup>3</sup> - 3t<sup>2</sup>]<sub>1</sub><sup>3</sup> = (27 - 27) - (1 - 3) = 0 - (-2) = <b>2</b></div>
+  </div>
+
+  <div class="trap"><b>ที่เธอถามในกระดาษว่า "ผลลัพธ์จะเป็น v หรือ s"</b>
+  ดูจากสิ่งที่โจทย์ให้มาค่ะ ถ้าโจทย์ให้ <span class="m">a(t)</span> อินทิเกรตครั้งแรกได้ <span class="k">v</span> เสมอ
+  ครั้งที่สองได้ <span class="k">s</span> &nbsp;— และเงื่อนไข v(0) จะใช้ได้กับชั้น v เท่านั้น s(0) ใช้ได้กับชั้น s เท่านั้น
+  ถ้าเอาไปใช้ผิดชั้นเลขจะเพี้ยนทั้งข้อ</div>
+
+  <div class="done-row"><label><input type="checkbox" data-k="s3"> §3 ปิดแล้ว — รู้ว่าดิฟไปทางไหน อินทิเกรตไปทางไหน และหา C ทีละชั้น</label></div>
+  </div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section id="s4">
+  <div class="sh"><span class="no">§ 4</span><h2>ค่าสูงสุด / ต่ำสุด — สัมพัทธ์ กับ สัมบูรณ์</h2><span class="meta">20 นาที</span></div>
+  <p class="lede">เพื่อนบอกว่ามีข้อ "พิสูจน์จุดสูงสุด/ต่ำสุดสัมพัทธ์" ด้วย ข่าวดีคือข้อสอบเป็นปรนัย
+  เธอไม่ต้องเขียนพิสูจน์จริง แค่ต้องรู้ว่าคำตอบที่ถูกหน้าตาเป็นยังไง</p>
+
+  <div class="blk">
+
+  <h3>ความต่างที่ทำคนตกมากที่สุด</h3>
+  <div class="two">
+    <div class="okbox"><b>สัมพัทธ์ (relative)</b>
+    "สูงสุดในละแวกใกล้ ๆ" — ยอดเนินเขา<br>
+    หาได้จาก <b>ค่าวิกฤตอย่างเดียว</b><br>
+    <span class="m">f&prime;(x) = 0</span></div>
+    <div class="okbox"><b>สัมบูรณ์ (absolute)</b>
+    "สูงสุดจริง ๆ ทั้งช่วง" — ยอดที่สูงที่สุดในแผนที่<br>
+    ต้องเทียบ <b>ค่าวิกฤต + ปลายช่วงทั้งสองข้าง</b><br>
+    <span class="m">f(วิกฤต), f(a), f(b)</span></div>
+  </div>
+
+  <div class="trap"><b>กับดักหลักของหัวข้อนี้</b>
+  โจทย์สัมบูรณ์บนช่วงปิด [a, b] แล้วเธอหาแต่ f&prime;(x)=0 อย่างเดียว —
+  <span class="kb">ลืมแทนปลายช่วง</span> คำตอบจะผิดทันที ตัวเลือกใน MC จะมีค่าที่ได้จากการลืมปลายช่วงดักไว้แน่นอน
+  <span class="k">เห็นวงเล็บเหลี่ยม [ ] เมื่อไหร่ = ต้องแทนสองปลายเสมอ</span></div>
+
+  <h3>ขั้นตอนหาค่าสุดขีดสัมบูรณ์บนช่วงปิด</h3>
+  <div class="fx">
+    <span class="eq"><em>1)</em> ดิฟ &rarr; <em>2)</em> f&prime;(x)=0 หาค่าวิกฤต &rarr; <em>3)</em> คัดเฉพาะตัวที่อยู่ในช่วง &rarr; <em>4)</em> แทนค่าวิกฤต <b>และปลายทั้งสอง</b> ลงใน f &rarr; <em>5)</em> เทียบตัวเลข</span>
+    <dl><dt>ตัวมากสุด</dt><dd>คือค่าสูงสุดสัมบูรณ์</dd><dt>ตัวน้อยสุด</dt><dd>คือค่าต่ำสุดสัมบูรณ์</dd></dl>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 4.1</span><span class="chip c-core">ข้อ 6 ของเธอ · หน้า 59 ข้อ 1.1</span></div>
+    <div class="exq">จงหาค่าสูงสุดสัมบูรณ์และค่าต่ำสุดสัมบูรณ์ของ f(x) = x<sup>2</sup> - 4x + 3 บนช่วงปิด [0, 5]</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · ดิฟ</u> f&prime;(x) = 2x - 4</div>
+      <div class="step" hidden><u>ขั้น 2 · หาค่าวิกฤต</u> 2x - 4 = 0 &rarr; x = 2 &nbsp;(อยู่ในช่วง [0,5] ใช้ได้)</div>
+      <div class="step" hidden><u>ขั้น 3 · แทนสามจุด</u>
+      <br>f(0) = 0 - 0 + 3 = <b>3</b>
+      <br>f(2) = 4 - 8 + 3 = <b>-1</b>
+      <br>f(5) = 25 - 20 + 3 = <b>8</b> &nbsp; &larr; ปลายขวา ห้ามลืม</div>
+      <div class="step" hidden><u>ขั้น 4 · เทียบ</u> มากสุดคือ 8 · น้อยสุดคือ -1</div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>สูงสุดสัมบูรณ์ = 8 (ที่ x = 5) &nbsp;&nbsp; ต่ำสุดสัมบูรณ์ = -1 (ที่ x = 2)</div>
+  </div>
+
+  <h3>ทดสอบอนุพันธ์อันดับสอง — ท่าที่เร็วที่สุดสำหรับข้อ "สัมพัทธ์"</h3>
+  <div class="fx">
+    <span class="eq">ที่ค่าวิกฤต c &nbsp;&nbsp; f&Prime;(c) &lt; <em>0</em> &rarr; สูงสุดสัมพัทธ์ &nbsp;&nbsp;|&nbsp;&nbsp; f&Prime;(c) &gt; <em>0</em> &rarr; ต่ำสุดสัมพัทธ์</span>
+    <dl><dt>จำภาพ</dt><dd>ลบ = คว่ำ = ยอดเขา &nbsp;&middot;&nbsp; บวก = หงาย = ก้นหุบเขา</dd>
+    <dt>ถ้า f&Prime;(c) = 0</dt><dd>ใช้ไม่ได้ ต้องกลับไปดูเครื่องหมายของ f&prime; รอบ ๆ c แทน</dd></dl>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 4.2</span><span class="chip c-core">แบบ "พิสูจน์สัมพัทธ์"</span></div>
+    <div class="exq">จงหาจุดสูงสุดสัมพัทธ์และต่ำสุดสัมพัทธ์ของ f(x) = x<sup>3</sup> - 3x<sup>2</sup> - 9x + 5</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · ดิฟ แล้วจัดรูป</u> f&prime;(x) = 3x<sup>2</sup> - 6x - 9 = 3(x<sup>2</sup> - 2x - 3) = 3(x - 3)(x + 1)</div>
+      <div class="step" hidden><u>ขั้น 2 · ค่าวิกฤต</u> x = 3 และ x = -1</div>
+      <div class="step" hidden><u>ขั้น 3 · ดิฟอีกครั้ง</u> f&Prime;(x) = 6x - 6
+      <br>f&Prime;(-1) = -12 &lt; 0 &rarr; <b>สูงสุดสัมพัทธ์</b>
+      <br>f&Prime;(3) = 12 &gt; 0 &rarr; <b>ต่ำสุดสัมพัทธ์</b></div>
+      <div class="step" hidden><u>ขั้น 4 · หาค่า</u>
+      <br>f(-1) = -1 - 3 + 9 + 5 = <b>10</b>
+      <br>f(3) = 27 - 27 - 27 + 5 = <b>-22</b></div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>จุดสูงสุดสัมพัทธ์ (-1, 10) &nbsp;&nbsp; จุดต่ำสุดสัมพัทธ์ (3, -22)</div>
+  </div>
+
+  <div class="note"><b>เวลาโจทย์ใช้คำว่า "จงแสดงว่า" หรือ "พิสูจน์ว่า"</b>
+  ในข้อสอบปรนัยมันแปลว่า <b>"ตัวเลือกไหนคือเหตุผลที่ถูก"</b> คำตอบที่ถูกจะมีหน้าตาแบบนี้เสมอ:
+  <span class="k">"เพราะ f&prime;(c) = 0 และ f&Prime;(c) &lt; 0"</span> หรือ
+  <span class="k">"เพราะ f&prime; เปลี่ยนจากบวกเป็นลบที่ x = c"</span> —
+  ตัวเลือกที่บอกแค่ "f&prime;(c) = 0" เฉย ๆ <b>ผิดเสมอ</b> เพราะ f&prime;=0 อาจเป็นจุดเปลี่ยนเว้าก็ได้</div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 4.3</span></div>
+    <div class="exq">หาค่าสูงสุด/ต่ำสุดสัมบูรณ์ของ f(x) = x<sup>3</sup> - 3x บนช่วง [0, 3]</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>f&prime; = 3x<sup>2</sup> - 3 = 0 &rarr; x = 1 (x = -1 อยู่นอกช่วง ตัดทิ้ง)<br>
+    f(0) = 0 &middot; f(1) = -2 &middot; f(3) = 27 - 9 = 18<br>
+    <b>สูงสุด 18 ที่ x=3 &nbsp; ต่ำสุด -2 ที่ x=1</b></div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 4.4</span><span class="chip c-drill">โจทย์ประยุกต์</span></div>
+    <div class="exq">ต้องการล้อมรั้วสี่เหลี่ยมผืนผ้าด้วยรั้วยาว 40 เมตร จงหาพื้นที่มากที่สุด</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>2x + 2y = 40 &rarr; y = 20 - x &middot; A = x(20 - x) = 20x - x<sup>2</sup><br>
+    A&prime; = 20 - 2x = 0 &rarr; x = 10 &middot; A&Prime; = -2 &lt; 0 &rarr; สูงสุดจริง<br>
+    <b>A = 10 &times; 10 = 100 ตารางเมตร</b></div>
+  </div>
+
+  <div class="done-row"><label><input type="checkbox" data-k="s4"> §4 ปิดแล้ว — เห็น [ ] แล้วแทนปลายช่วงทันที และใช้ f&Prime; ตัดสินสัมพัทธ์</label></div>
+  </div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section id="s5">
+  <div class="sh"><span class="no">§ 5</span><h2>พื้นที่ปิดล้อม — และปัญหา "2 ก้อน บวกหรือลบ"</h2><span class="meta">25 นาที</span></div>
+  <p class="lede">เพื่อนเธอบอกว่า "พื้นที่ปิด 2 อัน มาบวกหรือลบก็ไม่รู้" —
+  ครูตอบให้ตรงนี้เลยค่ะ <b>พื้นที่บวกเสมอ ไม่มีพื้นที่ติดลบในโลก</b>
+  ที่งงกันคือปริพันธ์ต่างหากที่ติดลบได้ อ่านต่ออีกสามนาทีจะเคลียร์</p>
+
+  <div class="blk">
+
+  <div class="fx">
+    <span class="eq">กราฟอยู่ <em>เหนือ</em> แกน x &nbsp;&rarr;&nbsp; A = <span class="ig">&#8747;<sub>a</sub><sup>b</sup></span>f(x) dx</span>
+    <span class="eq">กราฟอยู่ <em>ใต้</em> แกน x &nbsp;&rarr;&nbsp; A = <span class="kb">-</span><span class="ig">&#8747;<sub>a</sub><sup>b</sup></span>f(x) dx &nbsp; (ใส่ลบเพื่อทำให้เป็นบวก)</span>
+    <dl><dt>สรุปสั้น</dt><dd>A = ค่าสัมบูรณ์ของปริพันธ์ ในช่วงที่กราฟไม่ตัดแกน</dd></dl>
+  </div>
+
+  <h3>กรณี 2 ก้อน — กราฟตัดแกน x กลางช่วง</h3>
+  <p>ถ้าในช่วง [a, b] กราฟตัดแกน x ที่ x = c จะได้พื้นที่สองก้อน ก้อนหนึ่งใต้แกน อีกก้อนเหนือแกน
+  <b>ห้ามอินทิเกรตรวดเดียวจาก a ถึง b</b> เพราะสองก้อนจะหักล้างกันเอง</p>
+
+  <figure>
+  <svg viewBox="0 0 400 260" role="img" aria-label="กราฟ y = x กำลังสอง ลบ 4 ตัดแกน x ที่ x เท่ากับ 2 เกิดพื้นที่สองก้อน">
+    <path d="M 77.5 140 L 77.5 220 L 115 215 L 152.5 200 L 190 175 L 227.5 140 Z" fill="var(--warn-soft)" stroke="var(--warn-line)"/>
+    <path d="M 227.5 140 L 265 95 L 302.5 40 L 302.5 140 Z" fill="var(--acc-soft)" stroke="var(--acc-line)"/>
+    <line x1="40" y1="140" x2="350" y2="140" class="s-wall" stroke-width="1.8"/>
+    <line x1="77.5" y1="20" x2="77.5" y2="245" class="s-wall" stroke-width="1.8"/>
+    <polyline points="40,215 77.5,220 115,215 152.5,200 190,175 227.5,140 265,95 302.5,40" class="s-dim" stroke-width="2.4"/>
+    <line x1="302.5" y1="40" x2="302.5" y2="140" class="s-dash"/>
+    <circle cx="227.5" cy="140" r="4" fill="var(--text)"/>
+    <text x="232" y="158" class="s-lbl">x = 2</text>
+    <text x="298" y="158" class="s-lbl">x = 3</text>
+    <text x="62" y="158" class="s-lbl">0</text>
+    <text x="140" y="196" class="s-lbl wrn">ก้อน A (ใต้แกน)</text>
+    <text x="243" y="112" class="s-lbl acc">ก้อน B</text>
+    <text x="312" y="36" class="s-lbl">y = x&#178; - 4</text>
+  </svg>
+  <figcaption>ปริพันธ์ของก้อน A จะออกมาติดลบ ต้องใส่ลบกลับให้เป็นบวก แล้วค่อยบวกกับก้อน B</figcaption>
+  </figure>
+
+  <div class="fx">
+    <span class="eq">A<sub>รวม</sub> = <em>|</em><span class="ig">&#8747;<sub>a</sub><sup>c</sup></span>f dx<em>|</em> + <em>|</em><span class="ig">&#8747;<sub>c</sub><sup>b</sup></span>f dx<em>|</em></span>
+    <dl><dt>ตอบคำถามเพื่อนเธอ</dt><dd><b>บวก</b> ค่ะ — บวกขนาดของทั้งสองก้อน หลังจากทำให้เป็นบวกแล้ว</dd>
+    <dt>สิ่งเดียวที่ต้องหา</dt><dd>จุดตัดแกน x คือ <b>c ที่ทำให้ f(c) = 0</b></dd></dl>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 5.1</span><span class="chip c-core">แบบ 2 ก้อน</span></div>
+    <div class="exq">จงหาพื้นที่ที่ปิดล้อมด้วย y = x<sup>2</sup> - 4, แกน x, x = 0 และ x = 3</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · หาจุดตัดแกน x</u> x<sup>2</sup> - 4 = 0 &rarr; x = 2 (อยู่ในช่วง 0 ถึง 3 &rarr; <b>ต้องแบ่งสองก้อน</b>)</div>
+      <div class="step" hidden><u>ขั้น 2 · ก้อนแรก 0 ถึง 2</u> &#8747;<sub>0</sub><sup>2</sup>(x<sup>2</sup>-4)dx = [x<sup>3</sup>/3 - 4x]<sub>0</sub><sup>2</sup> = (8/3 - 8) - 0 = -16/3
+      <br>ติดลบเพราะอยู่ใต้แกน &rarr; พื้นที่ = <b>16/3</b></div>
+      <div class="step" hidden><u>ขั้น 3 · ก้อนสอง 2 ถึง 3</u> [x<sup>3</sup>/3 - 4x]<sub>2</sub><sup>3</sup> = (9 - 12) - (8/3 - 8) = (-3) - (-16/3) = -3 + 16/3 = <b>7/3</b></div>
+      <div class="step" hidden><u>ขั้น 4 · บวกกัน</u> 16/3 + 7/3</div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>A = 23/3 ตารางหน่วย</div>
+  </div>
+
+  <div class="trap"><b>ตัวเลือกหลอกที่จะโผล่แน่นอน</b>
+  ถ้าอินทิเกรตรวดเดียว 0 ถึง 3 จะได้ (9-12) - 0 = <span class="kb">-3</span> หรือถ้าเผลอบวกแบบมีเครื่องหมายจะได้ <span class="kb">-9/3 = -3</span>
+  เห็นตัวเลือกติดลบในโจทย์ถามพื้นที่เมื่อไหร่ <b>ตัดทิ้งทันที</b> — พื้นที่ติดลบไม่มีในโลก</div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 5.2</span><span class="chip c-core">แบบมีรูท x ที่ครูชอบ</span></div>
+    <div class="exq">จงหาพื้นที่ที่ปิดล้อมด้วย y = รูท x, แกน x, x = 0 และ x = 4</div>
+    <div class="steps">
+      <div class="step" hidden><u>ขั้น 1 · เช็คก่อน</u> รูท x &ge; 0 เสมอ &rarr; อยู่เหนือแกนทั้งช่วง <b>ก้อนเดียว ไม่ต้องแบ่ง</b></div>
+      <div class="step" hidden><u>ขั้น 2 · อินทิเกรต</u> &#8747;<sub>0</sub><sup>4</sup>x<sup>1/2</sup>dx = [(2/3)x<sup>3/2</sup>]<sub>0</sub><sup>4</sup></div>
+      <div class="step" hidden><u>ขั้น 3 · แทนค่า</u> (2/3)(4<sup>3/2</sup>) - 0 = (2/3)(8)</div>
+    </div>
+    <button class="reveal">ดูขั้นถัดไป</button>
+    <div class="ans" hidden>A = 16/3 ตารางหน่วย</div>
+  </div>
+
+  <h3>เผื่อไว้: พื้นที่ระหว่างเส้นโค้งสองเส้น</h3>
+  <p>ถ้าโจทย์ให้ <b>กราฟสองเส้น</b> ไม่ใช่กราฟกับแกน x สูตรเปลี่ยนนิดเดียว:</p>
+  <div class="fx">
+    <span class="eq">A = <span class="ig">&#8747;<sub>a</sub><sup>b</sup></span>( <em>บน</em> - <em>ล่าง</em> ) dx</span>
+    <dl><dt>a, b คือ</dt><dd>จุดตัดของสองเส้น &mdash; หาโดยให้สองสมการเท่ากัน</dd>
+    <dt>อันไหนบน</dt><dd>แทน x สักตัวที่อยู่ระหว่าง a กับ b ตัวที่ได้ค่ามากกว่าคือเส้นบน</dd></dl>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 5.3</span></div>
+    <div class="exq">จงหาพื้นที่ระหว่าง y = x และ y = x<sup>2</sup></div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>จุดตัด: x = x<sup>2</sup> &rarr; x = 0, 1 &middot; ที่ x = 0.5: y=0.5 มากกว่า y=0.25 &rarr; เส้นตรงอยู่บน<br>
+    A = &#8747;<sub>0</sub><sup>1</sup>(x - x<sup>2</sup>)dx = [x<sup>2</sup>/2 - x<sup>3</sup>/3]<sub>0</sub><sup>1</sup> = 1/2 - 1/3 = <b>1/6</b></div>
+  </div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ฝึก 5.4</span><span class="chip c-core">2 ก้อน อีกรอบ</span></div>
+    <div class="exq">จงหาพื้นที่ที่ปิดล้อมด้วย y = x<sup>2</sup> - 9, แกน x, x = -2 และ x = 1</div>
+    <button class="reveal">เฉลย</button>
+    <div class="ans" hidden>x<sup>2</sup>-9 = 0 &rarr; x = &plusmn;3 <b>ทั้งคู่อยู่นอกช่วง [-2, 1]</b> &rarr; ก้อนเดียว ไม่ต้องแบ่ง<br>
+    ในช่วงนี้กราฟอยู่ใต้แกนทั้งหมด &rarr; A = -&#8747;<sub>-2</sub><sup>1</sup>(x<sup>2</sup>-9)dx<br>
+    [x<sup>3</sup>/3 - 9x]<sub>-2</sub><sup>1</sup> = (1/3 - 9) - (-8/3 + 18) = (-26/3) - (46/3) = -72/3 = -24 &rarr; <b>A = 24</b><br>
+    <span class="kw">ข้อนี้เธอเคยทำถูกในสมุด (หน้า 74) แต่พอทำซ้ำหน้า 75 ตอบ 55/2 — ต่างกันเพราะเครื่องหมายตอนแทนค่าลบ</span></div>
+  </div>
+
+  <div class="done-row"><label><input type="checkbox" data-k="s5"> §5 ปิดแล้ว — เช็คจุดตัดแกนก่อนเสมอ แล้วบวกขนาดของแต่ละก้อน</label></div>
+  </div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section id="s6">
+  <div class="sh"><span class="no">§ 6</span><h2>เทคนิคทำข้อสอบปรนัย — 15 ข้อ 50 นาที</h2><span class="meta">15 นาที</span></div>
+  <p class="lede">3 นาที 20 วินาทีต่อข้อ ไม่มีเครื่องคิดเลข นี่คือข้อสอบที่ <b>วัดการจัดลำดับ</b> พอ ๆ กับวัดความรู้
+  เธอบอกเองว่าจุดอ่อนคือ "รีบเกินไป" — งั้นเราจะไม่แก้ด้วยการช้าลง แต่แก้ด้วยการ <b>เลือกว่าจะรีบตรงไหน</b></p>
+
+  <div class="blk">
+
+  <h3>1. กวาดสนามก่อน 5 นาทีแรก</h3>
+  <p>อย่าเริ่มทำข้อ 1 ทันที <b>เปิดอ่านทั้ง 15 ข้อก่อน</b> แล้วเขียนสัญลักษณ์ข้างข้อ:</p>
+  <div class="grid3">
+    <div><b>วงกลม</b> = ทำได้เลย</div>
+    <div><b>สามเหลี่ยม</b> = ต้องคิด</div>
+    <div><b>กากบาท</b> = ไม่รู้เรื่อง</div>
+  </div>
+  <p>แล้วทำวงกลมให้หมดก่อน ตามด้วยสามเหลี่ยม กากบาทไว้ทีหลัง —
+  <span class="k">คะแนนข้อง่ายกับข้อยากเท่ากัน</span> แต่ข้อง่ายใช้เวลา 1 นาที ข้อยากใช้ 6 นาที</p>
+
+  <h3>2. ดิฟย้อนกลับ — ท่าที่แรงที่สุดในข้อสอบปรนัย</h3>
+  <div class="note"><b>หลักการ</b>
+  ถ้าโจทย์ถามว่า &#8747;f(x)dx = อะไร <b>อย่าอินทิเกรต</b> ให้ <span class="k">ดิฟตัวเลือกแทน</span>
+  ตัวเลือกไหนดิฟแล้วได้ f(x) กลับมา ตัวนั้นคือคำตอบ — ดิฟเร็วกว่าอินทิเกรตมาก และไม่มีทางพลาดเรื่อง +C</div>
+
+  <div class="ex">
+    <div class="exh"><span class="qno">ตัวอย่าง 6.1</span><span class="chip c-core">ลองใช้จริง</span></div>
+    <div class="exq">&#8747;(x<sup>2</sup> - 1)/รูท x dx เท่ากับข้อใด<br>
+    <span class="m">1) (2/5)x<sup>5/2</sup> - 2x<sup>1/2</sup> + C &nbsp; 2) (2/3)x<sup>3/2</sup> - 2รูท x + C &nbsp; 3) (2/5)x<sup>5/2</sup> - (1/2)x<sup>-1/2</sup> + C</span></div>
+    <div class="steps">
+      <div class="step" hidden><u>ท่าที่เร็วกว่า</u> ดิฟข้อ 1: (2/5)(5/2)x<sup>3/2</sup> - 2(1/2)x<sup>-1/2</sup> = x<sup>3/2</sup> - x<sup>-1/2</sup></div>
+      <div class="step" hidden><u>เทียบกับโจทย์</u> (x<sup>2</sup>-1)/รูท x = x<sup>3/2</sup> - x<sup>-1/2</sup> &nbsp;<b>ตรงกัน</b> จบ ไม่ต้องดูข้ออื่น</div>
+    </div>
+    <button class="reveal">ดูวิธี</button>
+    <div class="ans" hidden>ตอบข้อ 1 &mdash; ใช้เวลา 20 วินาที แทนที่จะเป็น 2 นาที</div>
+  </div>
+
+  <h3>3. แทนตัวเลขแทนการแก้สมการ</h3>
+  <ul>
+    <li>โจทย์ให้จุดผ่าน เช่น (2,1) &rarr; <b>แทน x=2 ลงในตัวเลือก</b> ตัวไหนได้ 1 ตัวนั้นถูก เร็วกว่าหา C</li>
+    <li>โจทย์ถาม v(t) หรือ s(t) &rarr; แทน t=0 ลงตัวเลือก ต้องได้ค่าเริ่มต้นที่โจทย์ให้พอดี</li>
+    <li>สงสัยว่าตัดเศษส่วนได้ไหม &rarr; แทน x=4 ทั้งสองฝั่ง ถ้าไม่เท่ากันคือตัดไม่ได้</li>
+  </ul>
+
+  <h3>4. คัดตัวเลือกด้วยเครื่องหมายและขนาด</h3>
+  <div class="tw"><table>
+    <tr><th>โจทย์แบบ</th><th>ตัดทิ้งได้ทันที</th></tr>
+    <tr><td>ถามพื้นที่</td><td>ตัวเลือกที่ติดลบ</td></tr>
+    <tr><td>ปริพันธ์ไม่จำกัดเขต</td><td>ตัวเลือกที่ไม่มี + C</td></tr>
+    <tr><td>ถามค่าต่ำสุดสัมบูรณ์บน [a,b]</td><td>ตัวเลือกที่มากกว่า f(a) หรือ f(b)</td></tr>
+    <tr><td>f เป็นบวกทั้งช่วง</td><td>ปริพันธ์จำกัดเขตที่ติดลบ</td></tr>
+    <tr><td>ถามเวลา t ที่วัตถุหยุด</td><td>ค่า t ที่ติดลบ (ถ้าโจทย์บอก t &ge; 0)</td></tr>
+  </table></div>
+
+  <h3>5. นิสัยการเขียนที่กันเธอพลาด (ใช้เวลาเพิ่ม 5 วินาทีต่อข้อ)</h3>
+  <ol>
+    <li><b>วงเล็บครอบ F(a) เสมอ</b> เขียน (...) - (...) แล้วค่อยคิด &mdash; นี่แก้ความผิดพลาดของเธอไป 3 ข้อจาก 8 ข้อที่ครูตรวจเจอ</li>
+    <li><b>เศษส่วนคงเป็นเศษส่วน</b> อย่าแปลงเป็นทศนิยม 16/3 คือคำตอบที่ถูก ไม่ใช่ 5.33</li>
+    <li><b>เขียนเลข 4 ให้ปิดหัว</b> ในสมุดเธอ 4 กับ 9 แยกไม่ออกหลายที่ (หน้า 51, 54) แล้วเธออ่านผิดเอง</li>
+    <li><b>ตัวส่วนร่วมเขียนออกมา</b> อย่าแปลงเศษส่วนในหัว ข้อ 2/5 &rarr; 42/105 เธอเคยเขียนเป็น 21/105</li>
+  </ol>
+
+  <div class="trap"><b>ห้ามเว้นว่างเด็ดขาด</b>
+  ปรนัยเดาผิดไม่ติดลบ เหลือ 2 นาทีสุดท้ายให้ <b>ฝนทุกข้อที่ยังว่าง</b> ก่อนทำอย่างอื่น
+  ถ้าคัดตัวเลือกทิ้งได้ 2 ตัว โอกาสถูกขึ้นเป็น 50% ทันที</div>
+
+  <div class="done-row"><label><input type="checkbox" data-k="s6"> §6 ปิดแล้ว — กวาดสนามก่อน ดิฟย้อนกลับ ไม่เว้นว่าง</label></div>
+  </div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section id="s7">
+  <div class="sh"><span class="no">§ 7</span><h2>จุดพลาดประจำตัวของเธอ</h2><span class="meta">10 นาที · อ่านก่อนเข้าห้องสอบ</span></div>
+  <p class="lede">ครูไล่โจทย์ในสมุดเธอใหม่ทุกข้อ ผลคือ <b>เธอไม่ได้อ่อนแคลคูลัส</b> —
+  โจทย์กฎลูกโซ่กับผลหารเรื่องจรวด เธอทำถูก · โจทย์ |x-2|+|x-1| บน [-4,4] ตอบ 37 ถูก ·
+  โจทย์กำไรสูงสุดตอบ 37,425 ถูก · พื้นที่ 2 ก้อน 32/6 + 5/6 = 37/6 <b>เธอทำถูกมาแล้ว</b>
+  ที่ผิดคือ 8 จุดข้างล่างนี้ และมันเป็นเลขคณิตล้วน ๆ ไม่ใช่แคลคูลัส</p>
+
+  <div class="blk">
+  <div class="tw"><table>
+    <tr><th>โจทย์</th><th>เธอตอบ</th><th>ที่ถูก</th><th>บรรทัดที่พัง</th></tr>
+    <tr><td class="m">&#8747;<sub>3</sub><sup>4</sup>(x&#179;+3)dx</td><td class="m">259/4</td><td class="m">187/4</td><td>เขียน 81/4 <b>ลบ</b> 36/4 ทั้งที่ต้องบวก</td></tr>
+    <tr><td class="m">&#8747;<sub>-3</sub><sup>-1</sup>x&#8315;&#178;dx</td><td class="m">-2</td><td class="m">2/3</td><td>อ่าน -1/(-3) เป็น 3 แทนที่จะเป็น 1/3</td></tr>
+    <tr><td class="m">&#8747;<sub>0</sub><sup>1</sup>x&#178;(x&#178;+1)&#178;dx</td><td class="m">71/105</td><td class="m">92/105</td><td>แปลง 2/5 เป็น 21/105 (ที่ถูกคือ 42/105)</td></tr>
+    <tr><td class="m">&#8747;<sub>1</sub><sup>4</sup>(2x - x&#179;/3)dx</td><td class="m">75/12</td><td class="m">-75/12</td><td>180 - 255 ติดลบ แต่ลบหายไป</td></tr>
+    <tr><td>พื้นที่ y=x&#178;-9 บน [-2,1]</td><td class="m">55/2</td><td class="m">24</td><td>โจทย์เดียวกันหน้าก่อนหน้าเธอตอบ 24 ถูก</td></tr>
+    <tr><td class="m">&#8747;(1/x&#178; - 1/(2รูท x))dx</td><td>-</td><td>-</td><td>แปลง 1/(2รูท x) เป็น 2x&#8315;&#178; (ที่ถูกคือ (1/2)x&#8315;&#185;&#8260;&#178;)</td></tr>
+    <tr><td class="m">&#8747;รูท x dx</td><td>-</td><td class="m">(2/3)x&#179;&#8260;&#178;</td><td>เลขชี้กำลังเพี้ยน ต้องแก้ในขอบกระดาษ</td></tr>
+    <tr><td>ลายมือ</td><td class="m">9</td><td class="m">4</td><td>หน้า 51 และ 54 เลข 4 อ่านเป็น 9 แล้วคิดต่อผิด</td></tr>
+  </table></div>
+
+  <div class="note"><b>อ่านตารางนี้อีกรอบตอนเช้าพรุ่งนี้</b>
+  6 ใน 8 บรรทัดคือ <b>เครื่องหมายกับตัวส่วนร่วม</b> ไม่ใช่แคลคูลัสเลยสักอัน
+  แปลว่าถ้าเธอบังคับตัวเองให้ <span class="k">ใส่วงเล็บ</span> และ <span class="k">เขียนตัวส่วนร่วมออกมา</span>
+  คะแนนจะขึ้นทันทีโดยไม่ต้องเรียนอะไรเพิ่ม</div>
+
+  <h3>แผนคืนนี้</h3>
+  <div class="tw"><table>
+    <tr><th>ช่วง</th><th>ทำอะไร</th></tr>
+    <tr><td class="m">20:30 - 20:45</td><td>&sect;0 ปรับพื้นรูท &mdash; ท่องตารางแปลงให้ขึ้นใจ</td></tr>
+    <tr><td class="m">20:45 - 21:05</td><td>&sect;1 ปฏิยานุพันธ์ + FTC</td></tr>
+    <tr><td class="m">21:05 - 21:40</td><td><b>&sect;2 อินทิเกรตเศษส่วน</b> &mdash; ทำฝึก 2.4-2.8 ในกระดาษจริง</td></tr>
+    <tr><td class="m">21:40 - 22:05</td><td>&sect;3 a &rarr; v &rarr; s</td></tr>
+    <tr><td class="m">22:05 - 22:25</td><td>&sect;4 สูงสุด/ต่ำสุด</td></tr>
+    <tr><td class="m">22:25 - 22:50</td><td>&sect;5 พื้นที่ปิดล้อม</td></tr>
+    <tr><td class="m">22:50 - 23:05</td><td>&sect;6 เทคนิคปรนัย</td></tr>
+    <tr><td class="m">23:05 - 23:55</td><td><b>ข้อสอบเสมือน 15 ข้อ จับเวลา 50 นาที</b> (ไฟล์แยก)</td></tr>
+    <tr><td class="m">23:55 - 00:15</td><td>ตรวจ + อ่าน &sect;7 ซ้ำ แล้วนอน</td></tr>
+    <tr><td class="m">เช้าพรุ่งนี้</td><td>อ่านสรุป 1 หน้าในมือถือ ไม่ต้องทำโจทย์ใหม่</td></tr>
+  </table></div>
+
+  <div class="done-row"><label><input type="checkbox" data-k="s7"> พร้อมสอบแล้ว</label></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var K = "calc_";
+var store = {
+  get:function(k){ try{ return localStorage.getItem(K+k); }catch(e){ return null; } },
+  set:function(k,v){ try{ localStorage.setItem(K+k,v); }catch(e){} }
+};
+
+/* ---------- theme ---------- */
+var themeBtn = document.getElementById("theme");
+var saved = store.get("theme");
+if(saved){ document.documentElement.setAttribute("data-theme", saved); }
+themeBtn.addEventListener("click", function(){
+  var cur = document.documentElement.getAttribute("data-theme");
+  if(!cur){ cur = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+  var next = cur === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  store.set("theme", next);
+});
+
+/* ---------- timer ---------- */
+var tbtn = document.getElementById("tbtn"), el = document.getElementById("el"),
+    clock = document.getElementById("clock"), started = null, tick = null;
+function two(n){ return (n<10?"0":"") + n; }
+function fmt(s){
+  var h = Math.floor(s/3600), m = Math.floor(s%3600/60), sec = s%60;
+  if(h > 0){ return h + ":" + two(m) + ":" + two(sec); }
+  return m + ":" + two(sec);
+}
+function paint(){
+  var s = Math.floor((Date.now() - started)/1000);
+  el.textContent = fmt(s);
+  clock.classList.toggle("over", s > 12600);
+}
+function begin(t){
+  started = t; store.set("t0", String(t));
+  tbtn.textContent = "หยุดจับเวลา"; tbtn.classList.add("on");
+  paint(); tick = setInterval(paint, 1000);
+}
+tbtn.addEventListener("click", function(){
+  if(started){
+    clearInterval(tick); tick = null; started = null; store.set("t0","");
+    tbtn.textContent = "เริ่มจับเวลา"; tbtn.classList.remove("on");
+    el.textContent = "0:00"; clock.classList.remove("over");
+  } else { begin(Date.now()); }
+});
+var t0 = store.get("t0");
+if(t0){ begin(parseInt(t0,10)); }
+
+/* ---------- step reveal ---------- */
+document.addEventListener("click", function(e){
+  var btn = e.target.closest(".reveal");
+  if(!btn) return;
+  var ex = btn.closest(".ex");
+  var next = ex.querySelector(".step[hidden]");
+  if(next){ next.hidden = false; }
+  if(!ex.querySelector(".step[hidden]")){
+    btn.hidden = true;
+    var a = ex.querySelector(".ans");
+    if(a){ a.hidden = false; }
+  }
+});
+
+/* ---------- section checkboxes ---------- */
+var boxes = document.querySelectorAll("input[type=checkbox][data-k]");
+Array.prototype.forEach.call(boxes, function(b){
+  var k = "done_" + b.getAttribute("data-k");
+  if(store.get(k) === "1"){ b.checked = true; }
+  b.addEventListener("change", function(){
+    store.set(k, b.checked ? "1" : "0");
+    paintRail();
+  });
+});
+
+/* ---------- rail progress ---------- */
+var links = document.querySelectorAll(".dl");
+var depth = document.getElementById("depth");
+var prog = document.getElementById("prog");
+function paintRail(){
+  var ids = [], i;
+  for(i=0;i<links.length;i++){ ids.push(links[i].getAttribute("href").substring(1)); }
+  var y = window.scrollY + window.innerHeight * 0.35;
+  var hereIdx = 0;
+  for(i=0;i<ids.length;i++){
+    var sec = document.getElementById(ids[i]);
+    if(sec && sec.offsetTop <= y){ hereIdx = i; }
+  }
+  for(i=0;i<links.length;i++){
+    links[i].classList.toggle("here", i === hereIdx);
+    var cb = document.querySelector("input[data-k=" + ids[i] + "]");
+    links[i].classList.toggle("done", (cb && cb.checked) || i < hereIdx);
+  }
+  var frac = links.length > 1 ? (hereIdx / (links.length - 1)) : 0;
+  if(depth){ depth.style.transform = "scaleY(" + frac + ")"; }
+  var docH = document.body.scrollHeight - window.innerHeight;
+  var p = docH > 0 ? window.scrollY / docH : 0;
+  if(prog){ prog.style.transform = "scaleX(" + p + ")"; }
+}
+var raf = null;
+window.addEventListener("scroll", function(){
+  if(raf) return;
+  raf = requestAnimationFrame(function(){ raf = null; paintRail(); });
+}, {passive:true});
+paintRail();
+})();
+</script>
+</body>
+</html>

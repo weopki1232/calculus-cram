@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ข้อสอบเสมือน แคลคูลัส 15 ข้อ 50 นาที</title>
+<style>
+:root{
+  --ground:#F5F7F8; --surf:#FFFFFF; --surf2:#ECF1F4; --line:#D3DEE5; --line-soft:#E4EBEF;
+  --text:#10202C; --muted:#5A7183; --faint:#8CA0AF;
+  --acc:#0F8C9B; --acc-soft:#DDF0F2; --acc-line:#7FC5CD;
+  --warn:#A56A12; --warn-soft:#FBF0DC; --warn-line:#E0BE7E;
+  --ok:#1B7D4E; --ok-soft:#DEF2E7; --bad:#B8413A; --bad-soft:#FBE4E2;
+  --sh:0 1px 2px rgba(16,32,44,.06),0 6px 18px -8px rgba(16,32,44,.14);
+  --thai:"Sarabun","Leelawadee UI","Noto Sans Thai","Thonburi","IBM Plex Sans Thai",system-ui,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Consolas","SFMono-Regular","Menlo",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#0E1721; --surf:#16222F; --surf2:#1E2C3B; --line:#2A3B4D; --line-soft:#223040;
+  --text:#E6EDF3; --muted:#93A6B8; --faint:#6D8092;
+  --acc:#35C7D6; --acc-soft:#12313A; --acc-line:#2A6E78;
+  --warn:#E8A33D; --warn-soft:#33280F; --warn-line:#7A5D22;
+  --ok:#57C98A; --ok-soft:#12301F; --bad:#E8695F; --bad-soft:#361814;
+  --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -10px rgba(0,0,0,.6);
+}}
+:root[data-theme="dark"]{
+  --ground:#0E1721; --surf:#16222F; --surf2:#1E2C3B; --line:#2A3B4D; --line-soft:#223040;
+  --text:#E6EDF3; --muted:#93A6B8; --faint:#6D8092;
+  --acc:#35C7D6; --acc-soft:#12313A; --acc-line:#2A6E78;
+  --warn:#E8A33D; --warn-soft:#33280F; --warn-line:#7A5D22;
+  --ok:#57C98A; --ok-soft:#12301F; --bad:#E8695F; --bad-soft:#361814;
+  --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -10px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--thai);
+  font-size:17px;line-height:1.75;-webkit-text-size-adjust:100%}
+h1,h2,h3,h4{text-wrap:balance;line-height:1.3;margin:0}
+p{margin:0}
+button{font-family:inherit;font-size:inherit;color:inherit}
+code,.m{font-family:var(--mono);font-variant-numeric:tabular-nums}
+sub,sup{font-size:.7em;line-height:0}
+
+/* ---------- top bar ---------- */
+.bar{position:sticky;top:0;z-index:40;background:var(--ground);
+  background:color-mix(in srgb,var(--ground) 88%,transparent);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);}
+.bar-in{max-width:1180px;margin:0 auto;padding:.55rem 1.1rem;display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:-.01em;font-size:.98rem;margin-right:auto}
+.brand span{color:var(--muted);font-weight:400}
+.clock{font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums;
+  background:var(--surf2);border:1px solid var(--line);border-radius:999px;padding:.2rem .7rem;white-space:nowrap}
+.clock b{color:var(--acc);font-weight:600}
+.clock.over b{color:var(--bad)}
+.btn{background:var(--surf2);border:1px solid var(--line);border-radius:999px;
+  padding:.24rem .8rem;font-size:.86rem;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{border-color:var(--acc-line)}
+.btn:focus-visible,.opt:focus-visible,.reveal:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.btn.on{background:var(--acc-soft);border-color:var(--acc-line);color:var(--acc)}
+.pbar{height:2px;background:var(--line-soft)}
+.pbar i{display:block;height:100%;width:100%;background:var(--acc);
+  transform:scaleX(0);transform-origin:left;transition:transform .3s}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 1.1rem;display:grid;
+  grid-template-columns:186px minmax(0,1fr);gap:2.6rem;align-items:start}
+.rail{position:sticky;top:64px;padding:1.6rem 0;display:block}
+.rail-t{font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:.7rem}
+.depth{position:relative;padding-left:1.4rem}
+.depth::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.depth i{position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--acc);
+  transform:scaleY(0);transform-origin:top;transition:transform .35s}
+.dl{display:block;position:relative;padding:.3rem 0;font-size:.83rem;color:var(--muted);
+  text-decoration:none;line-height:1.35}
+.dl::before{content:"";position:absolute;left:-1.4rem;top:.72rem;width:12px;height:2px;background:var(--line)}
+.dl::after{content:"";position:absolute;left:-1.24rem;top:.45rem;width:8px;height:8px;border-radius:50%;
+  background:var(--ground);border:2px solid var(--line);transition:border-color .2s,background .2s}
+.dl:hover{color:var(--text)}
+.dl.done::after,.dl.here::after{border-color:var(--acc)}
+.dl.done::after{background:var(--acc)}
+.dl.here{color:var(--text);font-weight:600}
+.dl u{display:block;font-family:var(--mono);font-size:.68rem;color:var(--faint);text-decoration:none}
+main{padding:1.6rem 0 5rem;min-width:0}
+
+/* ---------- sections ---------- */
+section{scroll-margin-top:70px;margin-bottom:3.4rem}
+.sh{border-top:2px solid var(--text);padding-top:.8rem;margin-bottom:1.5rem;
+  display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap}
+.sh .no{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--acc);text-transform:uppercase}
+.sh h2{font-size:1.7rem;letter-spacing:-.02em;flex:1 1 100%;margin-top:-.15rem}
+.sh .meta{font-family:var(--mono);font-size:.76rem;color:var(--muted);
+  border:1px solid var(--line);border-radius:4px;padding:.08rem .45rem}
+.lede{color:var(--muted);max-width:62ch;margin-bottom:1.5rem}
+.blk{max-width:68ch}
+.blk>*+*{margin-top:1rem}
+h3{font-size:1.12rem;letter-spacing:-.01em;margin-top:2rem;
+  display:flex;align-items:center;gap:.6rem}
+h3::before{content:"";width:14px;height:2px;background:var(--acc);flex:none}
+h4{font-size:.98rem}
+
+/* ---------- formula card ---------- */
+.fx{background:var(--surf2);border:1px solid var(--line);border-radius:8px;
+  padding:1.15rem 1.15rem .95rem;position:relative}
+.fx::before{content:"สูตร";position:absolute;top:-.62rem;left:1rem;background:var(--ground);
+  padding:0 .45rem;font-family:var(--mono);font-size:.63rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint)}
+.fx .eq{font-family:var(--mono);font-size:1.18rem;color:var(--text);letter-spacing:.01em;
+  display:block;margin-bottom:.55rem;overflow-x:auto}
+.fx .eq em{font-style:normal;color:var(--acc)}
+.fx dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.14rem .7rem;font-size:.9rem}
+.fx dt{font-family:var(--mono);color:var(--acc);white-space:nowrap}
+.fx dd{margin:0;color:var(--muted)}
+.eqline{font-family:var(--mono);background:var(--surf2);border-radius:5px;padding:.12rem .4rem;
+  font-size:.95em;white-space:nowrap}
+
+/* ---------- callouts ---------- */
+.trap,.note{border-radius:8px;padding:.85rem 1.05rem;font-size:.95rem}
+.trap{background:var(--warn-soft);border:1px solid var(--warn-line)}
+.trap b{color:var(--warn);display:block;font-size:.76rem;font-family:var(--mono);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.note{background:var(--acc-soft);border:1px solid var(--acc-line)}
+.note b{color:var(--acc);display:block;font-size:.76rem;font-family:var(--mono);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+
+/* ---------- examples ---------- */
+.ex{background:var(--surf);border:1px solid var(--line);border-radius:10px;
+  padding:1rem 1.15rem;box-shadow:var(--sh)}
+.ex+.ex{margin-top:.85rem}
+.exh{display:flex;align-items:center;gap:.55rem;margin-bottom:.55rem;flex-wrap:wrap}
+.qno{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--acc)}
+.chip{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
+  border-radius:3px;padding:.1rem .4rem;border:1px solid}
+.c-core{color:var(--acc);border-color:var(--acc-line);background:var(--acc-soft)}
+.c-drill{color:var(--muted);border-color:var(--line);background:var(--surf2)}
+.c-skim{color:var(--faint);border-color:var(--line-soft)}
+.exq{font-size:.97rem}
+.steps{margin-top:.7rem;display:grid;gap:.55rem}
+.step{background:var(--surf2);border-radius:7px;padding:.55rem .8rem .6rem;font-size:.93rem;
+  animation:in .22s ease-out}
+.step[hidden]{display:none}
+.step u{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--faint);text-decoration:none;margin-bottom:.1rem}
+@keyframes in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.reveal{margin-top:.7rem;background:transparent;border:1px dashed var(--acc-line);color:var(--acc);
+  border-radius:6px;padding:.32rem .85rem;font-size:.85rem;cursor:pointer}
+.reveal:hover{background:var(--acc-soft)}
+.reveal[hidden]{display:none}
+.ans{margin-top:.7rem;font-family:var(--mono);font-size:.93rem;color:var(--ok);
+  background:var(--ok-soft);border-radius:6px;padding:.45rem .8rem;font-weight:600}
+.ans[hidden]{display:none}
+.short{margin-top:.5rem;font-size:.92rem;color:var(--muted);border-left:2px solid var(--line);padding-left:.75rem}
+.short .m{color:var(--text)}
+
+/* ---------- mcq + numeric ---------- */
+.opts{display:grid;gap:.35rem;margin-top:.6rem}
+@media(min-width:560px){.opts.g2{grid-template-columns:1fr 1fr}}
+.opt{text-align:left;background:var(--surf2);border:1px solid var(--line);border-radius:7px;
+  padding:.42rem .75rem;font-size:.92rem;cursor:pointer;font-family:var(--mono)}
+.opt:hover:not(:disabled){border-color:var(--acc-line)}
+.opt:disabled{cursor:default;opacity:.85}
+.opt.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);opacity:1}
+.opt.no{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);opacity:1}
+.fb{margin-top:.5rem;font-size:.9rem}
+.fb[hidden]{display:none}
+.numrow{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;margin-top:.5rem}
+input[type=text]{font-family:var(--mono);font-size:.95rem;width:9.5rem;padding:.34rem .6rem;
+  background:var(--surf2);border:1px solid var(--line);border-radius:6px;color:var(--text)}
+input.ok{border-color:var(--ok)} input.no{border-color:var(--bad)}
+.unit{font-family:var(--mono);font-size:.88rem;color:var(--muted)}
+.verdict{font-family:var(--mono);font-size:.85rem}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--bad)}
+
+/* ---------- misc ---------- */
+figure{margin:0;background:var(--surf);border:1px solid var(--line);border-radius:10px;
+  padding:.9rem;overflow-x:auto}
+figure svg{display:block;margin:0 auto;max-width:100%;height:auto}
+.s-wall{fill:none;stroke:var(--text);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.s-water{fill:var(--acc-soft);stroke:var(--acc-line);stroke-width:1.4}
+.s-water2{fill:var(--warn-soft);stroke:var(--warn-line);stroke-width:1.4}
+.s-solid{fill:var(--surf2);stroke:var(--text);stroke-width:2}
+.s-dash{fill:none;stroke:var(--faint);stroke-width:1.2;stroke-dasharray:5 4}
+.s-dim{fill:none;stroke:var(--acc);stroke-width:1.3}
+.s-arr{fill:none;stroke:var(--acc);stroke-width:2;marker-end:url(#ah)}
+.s-arrW{fill:none;stroke:var(--warn);stroke-width:2;marker-end:url(#ahw)}
+.s-lbl{font-family:var(--mono);font-size:12px;fill:var(--text)}
+.s-lbl.mut{fill:var(--muted);font-size:11px}
+.s-lbl.acc{fill:var(--acc)}
+.s-lbl.wrn{fill:var(--warn)}
+figcaption{font-size:.82rem;color:var(--muted);text-align:center;margin-top:.5rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:.42rem .6rem;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.m{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+ul,ol{margin:0;padding-left:1.3rem}
+li+li{margin-top:.3rem}
+details{background:var(--surf2);border:1px solid var(--line);border-radius:8px;padding:.55rem .85rem}
+summary{cursor:pointer;font-size:.92rem;font-weight:600;color:var(--muted)}
+summary:hover{color:var(--text)}
+details[open] summary{margin-bottom:.5rem;color:var(--text)}
+.done-row{display:flex;align-items:center;gap:.6rem;margin-top:1.6rem;
+  border-top:1px dashed var(--line);padding-top:.9rem}
+.done-row label{font-size:.9rem;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.5rem}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--acc);cursor:pointer}
+.hero{padding:2.4rem 0 1.2rem}
+.hero h1{font-size:clamp(1.9rem,5.2vw,2.9rem);letter-spacing:-.035em}
+.hero .sub{color:var(--muted);margin-top:.6rem;max-width:56ch}
+.kpis{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));margin-top:1.4rem}
+.kpi{background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:.65rem .85rem}
+.kpi b{display:block;font-family:var(--mono);font-size:1.4rem;color:var(--acc);line-height:1.2}
+.kpi span{font-size:.78rem;color:var(--muted)}
+@media(max-width:860px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{display:none}
+  body{font-size:16px}
+}
+@media print{
+  .bar,.rail,.reveal,.no-print{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt}
+  .wrap{grid-template-columns:1fr;max-width:none}
+  .step[hidden],.ans[hidden]{display:block!important}
+  section{page-break-inside:avoid}
+}
+</style>
+<style>
+/* ---------- math helpers ---------- */
+.m,.eq,.opt,.ans{font-variant-numeric:tabular-nums}
+.ig{position:relative;display:inline-block;font-size:1.45em;line-height:1;
+  vertical-align:-.30em;margin:0 .95em 0 .1em;font-family:var(--mono)}
+.ig sup,.ig sub{position:absolute;left:.60em;font-size:.44em;line-height:1;color:var(--acc);font-weight:600}
+.ig sup{top:-.12em} .ig sub{bottom:-.06em}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;
+  margin:0 .3em;line-height:1.2;font-size:.95em}
+.fr>span:first-child{border-bottom:1.3px solid currentColor;padding:0 .4em .05em}
+.fr>span:last-child{padding:.05em .4em 0}
+.ev{display:inline-block;position:relative;padding-right:.85em}
+.ev sup,.ev sub{position:absolute;right:0;font-size:.62em;line-height:1;color:var(--acc)}
+.ev sup{top:-.15em} .ev sub{bottom:-.1em}
+.k{color:var(--acc);font-weight:600}
+.kb{color:var(--bad);font-weight:600}
+.kw{color:var(--warn);font-weight:600}
+.strike{text-decoration:line-through;text-decoration-color:var(--bad);
+  text-decoration-thickness:2px;opacity:.6}
+.wrongbox{background:var(--bad-soft);border:1px solid var(--bad);border-radius:8px;
+  padding:.7rem .95rem;font-size:.93rem}
+.wrongbox b{color:var(--bad);display:block;font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.okbox{background:var(--ok-soft);border:1px solid var(--ok);border-radius:8px;
+  padding:.7rem .95rem;font-size:.93rem}
+.okbox b{color:var(--ok);display:block;font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.two{display:grid;gap:.7rem}
+@media(min-width:640px){.two{grid-template-columns:1fr 1fr}}
+.flow{display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;
+  font-family:var(--mono);font-size:1rem;background:var(--surf2);border-radius:8px;padding:.9rem}
+.flow .node{background:var(--surf);border:1px solid var(--acc-line);border-radius:7px;
+  padding:.35rem .8rem;color:var(--acc);font-weight:600}
+.flow .ar{color:var(--muted);font-size:.8rem;text-align:center;line-height:1.25}
+.flow .ar u{display:block;text-decoration:none;font-size:1.3rem;color:var(--text)}
+.pill{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;
+  text-transform:uppercase;border:1px solid var(--acc-line);background:var(--acc-soft);
+  color:var(--acc);border-radius:999px;padding:.1rem .55rem}
+.hero .warn{margin-top:1.2rem;background:var(--warn-soft);border:1px solid var(--warn-line);
+  border-radius:9px;padding:.8rem 1rem;font-size:.94rem;max-width:60ch}
+.tbl-conv td.m{white-space:nowrap}
+.exq .ig{margin-right:1.1em}
+.grid3{display:grid;gap:.5rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  font-family:var(--mono);font-size:.92rem}
+.grid3 div{background:var(--surf2);border-radius:6px;padding:.35rem .6rem}
+</style>
+<style>
+.mock .opts{gap:.45rem}
+.mock .opt.sel{background:var(--acc-soft);border-color:var(--acc);color:var(--acc)}
+.mock details{margin-top:.7rem}
+.bigclock{font-family:var(--mono);font-size:1.05rem;font-weight:700;
+  background:var(--surf2);border:1px solid var(--line);border-radius:999px;padding:.25rem .85rem}
+.bigclock.warn{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn)}
+.bigclock.over{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.scorecard{background:var(--surf);border:2px solid var(--acc);border-radius:12px;
+  padding:1.2rem 1.4rem;margin:1.6rem 0;box-shadow:var(--sh)}
+.scorecard[hidden]{display:none}
+.scorecard b{font-family:var(--mono);font-size:2.2rem;color:var(--acc);display:block;line-height:1.1}
+.rules{background:var(--surf2);border:1px solid var(--line);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.8rem}
+.rules ul{margin-top:.5rem}
+main.solo{max-width:820px;margin:0 auto;padding:1.6rem 1.1rem 5rem}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="brand">ข้อสอบเสมือน <span>· 15 ข้อ · 50 นาที</span></div>
+    <div class="bigclock" id="clock">50:00</div>
+    <button class="btn" id="tbtn">เริ่มสอบ</button>
+    <button class="btn" id="submit">ส่งคำตอบ</button>
+    <button class="btn" id="resetq">เริ่มใหม่</button>
+    <button class="btn" id="theme">สลับธีม</button>
+  </div>
+  <div class="pbar"><i id="prog"></i></div>
+</div>
+
+<main class="solo">
+
+<div class="hero" style="padding-top:1.4rem">
+  <h1>ข้อสอบเสมือน — แคลคูลัส</h1>
+  <p class="sub">สร้างจากข่าวกรองของเพื่อนเธอ + โจทย์ที่เธอข้ามในหนังสือ + <b>ตัวเลือกหลอกที่สร้างจากคำตอบผิดของเธอเอง</b>
+  ถ้าเธอเผลอทำพลาดแบบเดิม เธอจะเจอคำตอบผิดของตัวเองรออยู่ในตัวเลือกพอดี</p>
+</div>
+
+<div class="rules">
+  <b>กติกา</b>
+  <ul>
+    <li>กด <b>เริ่มสอบ</b> ก่อน แล้วจับเวลา 50 นาที</li>
+    <li><b>ห้ามใช้เครื่องคิดเลข</b> ทำในกระดาษจริง</li>
+    <li>เลือกคำตอบทุกข้อ ห้ามเว้นว่าง — เดาก็ต้องเดา</li>
+    <li>กด <b>ส่งคำตอบ</b> ครั้งเดียวตอนจบ อย่าแอบดูเฉลยระหว่างทำ</li>
+    <li>ข้อ 1-7 เน้นดิฟ · ข้อ 8-12 เน้นอินทิเกรต · ข้อ 13-15 พื้นที่</li>
+  </ul>
+</div>
+
+<div class="scorecard" id="scorecard" hidden>
+  <b id="score">0 / 15</b>
+  <div id="scoremsg" style="color:var(--muted);margin-top:.4rem"></div>
+</div>
+
+<section id="q">
+<div class="sh"><span class="no">ตอนที่ 1</span><h2>อัตราการเปลี่ยนแปลง และ ค่าสุดขีด</h2></div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 1</span></div>
+  <div class="exq">วัตถุเคลื่อนที่ตามสมการ s(t) = t<sup>3</sup> - 6t<sup>2</sup> + 9t วัตถุหยุดนิ่งที่เวลาใด</div>
+  <div class="opts" data-ans="1">
+    <button class="opt" data-i="1">1) t = 1 และ t = 3</button>
+    <button class="opt" data-i="2">2) t = 2 เท่านั้น</button>
+    <button class="opt" data-i="3">3) t = 0 และ t = 4</button>
+    <button class="opt" data-i="4">4) t = 3 เท่านั้น</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  หยุดนิ่ง = v(t) = 0 &nbsp; v = s&prime; = 3t<sup>2</sup> - 12t + 9 = 3(t-1)(t-3) = 0 &rarr; t = 1, 3</details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 2</span></div>
+  <div class="exq">s(t) = 2t<sup>3</sup> - 3t<sup>2</sup> + 4 จงหาความเร่งที่ t = 2</div>
+  <div class="opts" data-ans="3">
+    <button class="opt" data-i="1">1) 6</button>
+    <button class="opt" data-i="2">2) 12</button>
+    <button class="opt" data-i="3">3) 18</button>
+    <button class="opt" data-i="4">4) 24</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  v = 6t<sup>2</sup> - 6t &middot; a = 12t - 6 &rarr; a(2) = 24 - 6 = 18<br>
+  <span class="kw">ข้อ 2) 12 คือ v(2) ไม่ใช่ a(2) — ดิฟให้ครบสองครั้ง</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 3</span></div>
+  <div class="exq">กำหนด a(t) = 6 - 2t และ v(0) = 5 จงหา v(t)</div>
+  <div class="opts" data-ans="2">
+    <button class="opt" data-i="1">1) 6t - t<sup>2</sup></button>
+    <button class="opt" data-i="2">2) 6t - t<sup>2</sup> + 5</button>
+    <button class="opt" data-i="3">3) 6t - 2t<sup>2</sup> + 5</button>
+    <button class="opt" data-i="4">4) 3t<sup>2</sup> - t<sup>3</sup>/3 + 5t</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  v = &#8747;(6-2t)dt = 6t - t<sup>2</sup> + C &middot; v(0)=5 &rarr; C = 5<br>
+  <span class="kw">ข้อ 1) คือคำตอบที่ลืม +C — ข้อ 4) คือ s(t) ไม่ใช่ v(t)</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 4</span></div>
+  <div class="exq">เส้นโค้ง y = f(x) มี dy/dx = x<sup>2</sup> - 3x + 2 และผ่านจุด (2, 1) สมการเส้นโค้งคือข้อใด</div>
+  <div class="opts" data-ans="1">
+    <button class="opt" data-i="1">1) y = x<sup>3</sup>/3 - 3x<sup>2</sup>/2 + 2x + 1/3</button>
+    <button class="opt" data-i="2">2) y = x<sup>3</sup>/3 - 3x<sup>2</sup>/2 + 2x</button>
+    <button class="opt" data-i="3">3) y = x<sup>3</sup>/3 - 3x<sup>2</sup>/2 + 2x + 1</button>
+    <button class="opt" data-i="4">4) y = x<sup>3</sup>/3 - 3x<sup>2</sup>/2 + 2x - 1/3</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  อินทิเกรตได้ x<sup>3</sup>/3 - 3x<sup>2</sup>/2 + 2x + C &middot; แทน (2,1): 8/3 - 6 + 4 + C = 1 &rarr; C = 1/3<br>
+  <span class="k">ทางลัดปรนัย: แทน x = 2 ลงทุกตัวเลือก ตัวไหนได้ 1 ตัวนั้นถูก</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 5</span></div>
+  <div class="exq">ค่าสูงสุดสัมบูรณ์ของ f(x) = x<sup>2</sup> - 4x + 3 บนช่วงปิด [0, 5] คือข้อใด</div>
+  <div class="opts" data-ans="4">
+    <button class="opt" data-i="1">1) -1</button>
+    <button class="opt" data-i="2">2) 3</button>
+    <button class="opt" data-i="3">3) 5</button>
+    <button class="opt" data-i="4">4) 8</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  f&prime; = 2x - 4 = 0 &rarr; x = 2 &middot; f(0)=3, f(2)=-1, f(5)=8 &rarr; สูงสุด = 8<br>
+  <span class="kw">ข้อ 2) 3 คือคำตอบของคนที่ลืมแทนปลายขวา x = 5</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 6</span></div>
+  <div class="exq">f(x) = x<sup>3</sup> - 3x<sup>2</sup> - 9x + 5 มีจุดต่ำสุดสัมพัทธ์ที่จุดใด</div>
+  <div class="opts" data-ans="2">
+    <button class="opt" data-i="1">1) (-1, 10)</button>
+    <button class="opt" data-i="2">2) (3, -22)</button>
+    <button class="opt" data-i="3">3) (3, 22)</button>
+    <button class="opt" data-i="4">4) (1, -6)</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  f&prime; = 3(x-3)(x+1) &rarr; x = 3, -1 &middot; f&Prime; = 6x - 6<br>
+  f&Prime;(3) = 12 &gt; 0 &rarr; ต่ำสุดสัมพัทธ์ &middot; f(3) = 27 - 27 - 27 + 5 = -22<br>
+  <span class="kw">ข้อ 1) คือจุดสูงสุดสัมพัทธ์ อ่านโจทย์ให้ดีว่าถามอันไหน</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 7</span></div>
+  <div class="exq">ข้อความใดใช้ยืนยันได้ว่า f มีค่าสูงสุดสัมพัทธ์ที่ x = c</div>
+  <div class="opts" data-ans="3">
+    <button class="opt" data-i="1">1) f&prime;(c) = 0</button>
+    <button class="opt" data-i="2">2) f&prime;(c) = 0 และ f&Prime;(c) &gt; 0</button>
+    <button class="opt" data-i="3">3) f&prime;(c) = 0 และ f&Prime;(c) &lt; 0</button>
+    <button class="opt" data-i="4">4) f&Prime;(c) = 0</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  ลบ = คว่ำ = ยอดเขา &rarr; f&Prime;(c) &lt; 0 คือสูงสุดสัมพัทธ์<br>
+  <span class="kw">ข้อ 1) ไม่พอ เพราะ f&prime;=0 อาจเป็นจุดเปลี่ยนเว้า (เช่น y = x&#179; ที่ x = 0)</span></details>
+</div>
+
+<div class="sh" style="margin-top:2.6rem"><span class="no">ตอนที่ 2</span><h2>ปฏิยานุพันธ์ และ ปริพันธ์</h2></div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 8</span></div>
+  <div class="exq"><span class="ig">&#8747;<sub>1</sub><sup>9</sup></span><span class="fr"><span>1</span><span>รูท x</span></span> dx มีค่าเท่ากับข้อใด</div>
+  <div class="opts" data-ans="2">
+    <button class="opt" data-i="1">1) 2</button>
+    <button class="opt" data-i="2">2) 4</button>
+    <button class="opt" data-i="3">3) 6</button>
+    <button class="opt" data-i="4">4) 16</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  x<sup>-1/2</sup> &rarr; 2x<sup>1/2</sup> &middot; [2รูท x]<sub>1</sub><sup>9</sup> = 6 - 2 = 4<br>
+  <span class="kw">ข้อ 3) 6 คือคำตอบของคนที่แทน x = 9 แล้วลืมลบ F(1) — เธอหยุดตรงนี้พอดีในกระดาษวินิจฉัย</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 9</span></div>
+  <div class="exq"><span class="ig">&#8747;<sub>2</sub><sup>3</sup></span><span class="fr"><span>3x<sup>4</sup> - 4x<sup>2</sup> + 6</span><span>x<sup>2</sup></span></span> dx มีค่าเท่ากับข้อใด</div>
+  <div class="opts" data-ans="4">
+    <button class="opt" data-i="1">1) 10</button>
+    <button class="opt" data-i="2">2) 13</button>
+    <button class="opt" data-i="3">3) -3</button>
+    <button class="opt" data-i="4">4) 16</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  แยกเศษ: 3x<sup>2</sup> - 4 + 6x<sup>-2</sup> &rarr; [x<sup>3</sup> - 4x - 6/x]<sub>2</sub><sup>3</sup><br>
+  = (27 - 12 - 2) - (8 - 8 - 3) = 13 - (-3) = 16<br>
+  <span class="kw">ข้อ 2) 13 คือ F(3) เฉย ๆ &middot; ข้อ 3) -3 คือ F(2) เฉย ๆ — ทั้งคู่คือการลืมลบ</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 10</span></div>
+  <div class="exq"><span class="ig">&#8747;<sub>1</sub><sup>4</sup></span><span class="fr"><span>x<sup>2</sup> + รูท x</span><span>x<sup>2</sup></span></span> dx มีค่าเท่ากับข้อใด</div>
+  <div class="opts" data-ans="1">
+    <button class="opt" data-i="1">1) 4</button>
+    <button class="opt" data-i="2">2) 14/3</button>
+    <button class="opt" data-i="3">3) 16/3</button>
+    <button class="opt" data-i="4">4) 2</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  แยกเศษ: 1 + x<sup>-3/2</sup> &rarr; [x - 2x<sup>-1/2</sup>]<sub>1</sub><sup>4</sup> = (4-1) - (1-2) = 4<br>
+  <span class="kb">ข้อ 2) 14/3 คือคำตอบที่ได้ถ้าตัด x&#178; บนล่างทิ้งแล้วอินทิเกรต รูท x — คือสิ่งที่เธอทำในกระดาษวินิจฉัยเป๊ะ ๆ ถ้าเลือกข้อนี้ กลับไปอ่าน &sect;2</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 11</span></div>
+  <div class="exq"><span class="ig">&#8747;</span><span class="fr"><span>x<sup>2</sup> - 1</span><span>รูท x</span></span> dx เท่ากับข้อใด</div>
+  <div class="opts" data-ans="3">
+    <button class="opt" data-i="1">1) (2/3)x<sup>3/2</sup> - 2รูท x + C</button>
+    <button class="opt" data-i="2">2) (2/5)x<sup>5/2</sup> - 2รูท x</button>
+    <button class="opt" data-i="3">3) (2/5)x<sup>5/2</sup> - 2รูท x + C</button>
+    <button class="opt" data-i="4">4) x<sup>3</sup>/3 - x + C</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  แยกเศษ: x<sup>3/2</sup> - x<sup>-1/2</sup> &rarr; (2/5)x<sup>5/2</sup> - 2x<sup>1/2</sup> + C<br>
+  <span class="kw">ข้อ 2) เหมือนกันทุกอย่างแต่ไม่มี + C — ปริพันธ์ไม่จำกัดเขตต้องมี C เสมอ</span><br>
+  <span class="k">ทางลัด: ดิฟตัวเลือกดู ตัวไหนดิฟแล้วได้ (x&#178;-1)/รูท x ตัวนั้นถูก</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 12</span></div>
+  <div class="exq"><span class="ig">&#8747;<sub>3</sub><sup>4</sup></span>(x<sup>3</sup> + 3) dx มีค่าเท่ากับข้อใด</div>
+  <div class="opts" data-ans="1">
+    <button class="opt" data-i="1">1) 187/4</button>
+    <button class="opt" data-i="2">2) 259/4</button>
+    <button class="opt" data-i="3">3) 76</button>
+    <button class="opt" data-i="4">4) 67</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  [x<sup>4</sup>/4 + 3x]<sub>3</sub><sup>4</sup> = (64 + 12) - (81/4 + 9) = 76 - 81/4 - 9 = 67 - 81/4 = 268/4 - 81/4 = 187/4<br>
+  <span class="kb">ข้อ 2) 259/4 คือคำตอบที่เธอเขียนในสมุด เกิดจากเขียน 81/4 ลบ 36/4 แทนที่จะบวก</span><br>
+  <span class="kw">ข้อ 3) 76 คือ F(4) เฉย ๆ</span></details>
+</div>
+
+<div class="sh" style="margin-top:2.6rem"><span class="no">ตอนที่ 3</span><h2>พื้นที่ปิดล้อม</h2></div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 13</span></div>
+  <div class="exq">พื้นที่ที่ปิดล้อมด้วยเส้นโค้ง y = รูท x, แกน x, x = 0 และ x = 4 เท่ากับข้อใด</div>
+  <div class="opts" data-ans="3">
+    <button class="opt" data-i="1">1) 8/3</button>
+    <button class="opt" data-i="2">2) 8</button>
+    <button class="opt" data-i="3">3) 16/3</button>
+    <button class="opt" data-i="4">4) 32/3</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  รูท x อยู่เหนือแกนทั้งช่วง &rarr; ก้อนเดียว<br>
+  [(2/3)x<sup>3/2</sup>]<sub>0</sub><sup>4</sup> = (2/3)(4<sup>3/2</sup>) = (2/3)(8) = 16/3<br>
+  <span class="kw">ถ้าคิด 4<sup>3/2</sup> = 4 จะได้ 8/3 (ข้อ 1) — 4<sup>3/2</sup> คือ 2<sup>3</sup> = 8</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 14</span></div>
+  <div class="exq">พื้นที่ที่ปิดล้อมด้วยเส้นโค้ง y = x<sup>2</sup> - 4, แกน x, x = 0 และ x = 3 เท่ากับข้อใด</div>
+  <div class="opts" data-ans="4">
+    <button class="opt" data-i="1">1) -3</button>
+    <button class="opt" data-i="2">2) 3</button>
+    <button class="opt" data-i="3">3) 16/3</button>
+    <button class="opt" data-i="4">4) 23/3</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  กราฟตัดแกน x ที่ x = 2 ซึ่งอยู่ในช่วง &rarr; <b>ต้องแบ่งสองก้อน</b><br>
+  ก้อน 0 ถึง 2: &#8747; = -16/3 &rarr; พื้นที่ 16/3 &middot; ก้อน 2 ถึง 3: &#8747; = 7/3<br>
+  รวม = 16/3 + 7/3 = 23/3<br>
+  <span class="kb">ข้อ 1) -3 คือการอินทิเกรตรวดเดียว 0 ถึง 3 ซึ่งสองก้อนหักล้างกัน — และพื้นที่ติดลบไม่มีในโลก</span></details>
+</div>
+
+<div class="ex mock">
+  <div class="exh"><span class="qno">ข้อ 15</span></div>
+  <div class="exq">พื้นที่ที่ปิดล้อมด้วยเส้นโค้ง y = x<sup>2</sup> และเส้นตรง y = x เท่ากับข้อใด</div>
+  <div class="opts" data-ans="1">
+    <button class="opt" data-i="1">1) 1/6</button>
+    <button class="opt" data-i="2">2) 1/3</button>
+    <button class="opt" data-i="3">3) 1/2</button>
+    <button class="opt" data-i="4">4) 5/6</button>
+  </div>
+  <div class="fb" hidden></div>
+  <details><summary>วิธีทำ</summary>
+  จุดตัด: x<sup>2</sup> = x &rarr; x = 0, 1 &middot; ที่ x = 0.5 เส้นตรงอยู่บน<br>
+  &#8747;<sub>0</sub><sup>1</sup>(x - x<sup>2</sup>)dx = 1/2 - 1/3 = 1/6<br>
+  <span class="kw">ข้อ 3) 1/2 คือพื้นที่ใต้เส้นตรงอย่างเดียว &middot; ข้อ 2) 1/3 คือใต้พาราโบลาอย่างเดียว</span></details>
+</div>
+
+</section>
+</main>
+
+<script>
+(function(){
+"use strict";
+var K = "calcmock_";
+var store = {
+  get:function(k){ try{ return localStorage.getItem(K+k); }catch(e){ return null; } },
+  set:function(k,v){ try{ localStorage.setItem(K+k,v); }catch(e){} }
+};
+var LIMIT = 50 * 60;
+
+/* theme */
+var themeBtn = document.getElementById("theme");
+var saved = store.get("theme") || (function(){ try{ return localStorage.getItem("calc_theme"); }catch(e){ return null; } })();
+if(saved){ document.documentElement.setAttribute("data-theme", saved); }
+themeBtn.addEventListener("click", function(){
+  var cur = document.documentElement.getAttribute("data-theme");
+  if(!cur){ cur = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+  var next = cur === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  store.set("theme", next);
+});
+
+/* countdown */
+var clock = document.getElementById("clock"), tbtn = document.getElementById("tbtn");
+var started = null, tick = null;
+function two(n){ return (n<10?"0":"") + n; }
+function paint(){
+  var used = Math.floor((Date.now() - started)/1000);
+  var left = LIMIT - used;
+  var neg = left < 0;
+  var v = Math.abs(left);
+  clock.textContent = (neg ? "-" : "") + Math.floor(v/60) + ":" + two(v%60);
+  clock.classList.toggle("warn", !neg && left <= 600);
+  clock.classList.toggle("over", neg);
+  var p = Math.min(1, used / LIMIT);
+  document.getElementById("prog").style.transform = "scaleX(" + p + ")";
+}
+function begin(t){
+  started = t; store.set("t0", String(t));
+  tbtn.textContent = "หยุด"; tbtn.classList.add("on");
+  paint(); tick = setInterval(paint, 1000);
+}
+tbtn.addEventListener("click", function(){
+  if(started){
+    clearInterval(tick); tick = null; started = null; store.set("t0","");
+    tbtn.textContent = "เริ่มสอบ"; tbtn.classList.remove("on");
+  } else { begin(Date.now()); }
+});
+var t0 = store.get("t0");
+if(t0){ begin(parseInt(t0,10)); }
+
+/* choose */
+document.addEventListener("click", function(e){
+  var opt = e.target.closest(".opt");
+  if(!opt || opt.disabled) return;
+  var box = opt.closest(".opts");
+  Array.prototype.forEach.call(box.querySelectorAll(".opt"), function(b){ b.classList.remove("sel"); });
+  opt.classList.add("sel");
+  box.setAttribute("data-pick", opt.getAttribute("data-i"));
+});
+
+/* submit */
+var boxes = document.querySelectorAll(".mock .opts");
+document.getElementById("submit").addEventListener("click", function(){
+  var n = 0, blank = 0, i;
+  Array.prototype.forEach.call(boxes, function(box){
+    var correct = box.getAttribute("data-ans");
+    var pick = box.getAttribute("data-pick");
+    if(!pick){ blank++; }
+    Array.prototype.forEach.call(box.querySelectorAll(".opt"), function(b){
+      b.disabled = true;
+      if(b.getAttribute("data-i") === correct){ b.classList.add("ok"); }
+      if(b.getAttribute("data-i") === pick && pick !== correct){ b.classList.add("no"); }
+    });
+    var right = pick === correct;
+    if(right){ n++; }
+    var fb = box.parentNode.querySelector(".fb");
+    if(fb){
+      fb.hidden = false;
+      fb.innerHTML = right ? '<span class="verdict ok">ถูกต้อง</span>'
+        : '<span class="verdict no">' + (pick ? "ยังไม่ใช่" : "ไม่ได้ตอบ") + " &mdash; ข้อที่ถูกคือ " + correct + '</span>';
+    }
+    var d = box.parentNode.querySelector("details");
+    if(d){ d.open = true; }
+  });
+  var card = document.getElementById("scorecard");
+  card.hidden = false;
+  document.getElementById("score").textContent = n + " / " + boxes.length;
+  var msg;
+  if(n >= 13){ msg = "พร้อมสอบแล้วค่ะ อ่าน &sect;7 ซ้ำแล้วนอนได้เลย"; }
+  else if(n >= 10){ msg = "ดีมาก เหลือแค่ปิดข้อที่ผิด อ่านวิธีทำของข้อนั้นให้เข้าใจก่อนนอน"; }
+  else if(n >= 7){ msg = "ผ่านครึ่ง กลับไปอ่าน &sect;2 กับ &sect;5 อีกรอบ แล้วกดเริ่มใหม่"; }
+  else { msg = "ยังไม่พอค่ะ กลับไปที่ชีทติวเข้ม ทำ &sect;0 ถึง &sect;2 ให้จบก่อนแล้วค่อยกลับมา"; }
+  if(blank > 0){ msg = msg + " &middot; เว้นว่าง " + blank + " ข้อ &mdash; ในห้องสอบจริงห้ามเว้นเด็ดขาด"; }
+  document.getElementById("scoremsg").innerHTML = msg;
+  card.scrollIntoView({behavior:"smooth", block:"center"});
+});
+
+/* reset */
+document.getElementById("resetq").addEventListener("click", function(){
+  Array.prototype.forEach.call(boxes, function(box){
+    box.removeAttribute("data-pick");
+    Array.prototype.forEach.call(box.querySelectorAll(".opt"), function(b){
+      b.disabled = false; b.classList.remove("ok","no","sel");
+    });
+    var fb = box.parentNode.querySelector(".fb");
+    if(fb){ fb.hidden = true; fb.innerHTML = ""; }
+    var d = box.parentNode.querySelector("details");
+    if(d){ d.open = false; }
+  });
+  document.getElementById("scorecard").hidden = true;
+  if(started){ clearInterval(tick); tick = null; started = null; }
+  store.set("t0","");
+  tbtn.textContent = "เริ่มสอบ"; tbtn.classList.remove("on");
+  clock.textContent = "50:00"; clock.classList.remove("warn","over");
+  document.getElementById("prog").style.transform = "scaleX(0)";
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+})();
+</script>
+</body>
+</html>
